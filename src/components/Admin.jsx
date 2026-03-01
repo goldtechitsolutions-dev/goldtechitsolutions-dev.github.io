@@ -3643,24 +3643,27 @@ const Admin = ({ currentUser }) => {
                                                         <div style={{ marginTop: '10px' }}>
                                                             <span style={{ color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', fontSize: '0.8rem', display: 'block', marginBottom: '10px' }}>Intelligence Log:</span>
                                                             <div style={{ maxHeight: '350px', overflowY: 'auto', background: 'rgba(0,0,0,0.3)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }} className="custom-scrollbar">
-                                                                {selectedItem.messages?.map((msg, idx) => (
-                                                                    <div key={idx} style={{ marginBottom: '15px', textAlign: msg.sender === 'bot' ? 'left' : 'right' }}>
-                                                                        <div style={{
-                                                                            display: 'inline-block',
-                                                                            padding: '12px 18px',
-                                                                            borderRadius: msg.sender === 'bot' ? '16px 16px 16px 4px' : '16px 16px 4px 16px',
-                                                                            background: msg.sender === 'bot' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(212, 175, 55, 0.1)',
-                                                                            color: msg.sender === 'bot' ? '#3b82f6' : '#D4AF37',
-                                                                            fontSize: '0.95rem',
-                                                                            border: `1px solid ${msg.sender === 'bot' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(212, 175, 55, 0.2)'}`,
-                                                                            maxWidth: '85%',
-                                                                            lineHeight: '1.5'
-                                                                        }}>
-                                                                            {msg.text}
+                                                                {selectedItem.messages?.map((msg, idx) => {
+                                                                    const isBot = msg.sender === 'bot' || msg.isBot === true;
+                                                                    return (
+                                                                        <div key={idx} style={{ marginBottom: '15px', textAlign: isBot ? 'left' : 'right' }}>
+                                                                            <div style={{
+                                                                                display: 'inline-block',
+                                                                                padding: '12px 18px',
+                                                                                borderRadius: isBot ? '16px 16px 16px 4px' : '16px 16px 4px 16px',
+                                                                                background: isBot ? 'rgba(59, 130, 246, 0.1)' : 'rgba(212, 175, 55, 0.1)',
+                                                                                color: isBot ? '#3b82f6' : '#D4AF37',
+                                                                                fontSize: '0.95rem',
+                                                                                border: `1px solid ${isBot ? 'rgba(59, 130, 246, 0.2)' : 'rgba(212, 175, 55, 0.2)'}`,
+                                                                                maxWidth: '85%',
+                                                                                lineHeight: '1.5'
+                                                                            }}>
+                                                                                {msg.text}
+                                                                            </div>
+                                                                            <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '5px', fontWeight: '700' }}>{isBot ? 'AI AGENT' : 'CLIENT'}</div>
                                                                         </div>
-                                                                        <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '5px', fontWeight: '700' }}>{msg.sender === 'bot' ? 'AI AGENT' : 'CLIENT'}</div>
-                                                                    </div>
-                                                                ))}
+                                                                    );
+                                                                })}
                                                             </div>
                                                         </div>
                                                     )}

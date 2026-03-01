@@ -1747,106 +1747,7 @@ const AdminService = {
         ];
     },
 
-    // --- Chatbot Analytics ---
-    async getChatLogs() {
-        try {
-            // 1. Fetch from Supabase
-            const { data: remoteData, error } = await supabase
-                .from('gt_chat_logs')
-                .select('*')
-                .order('created_at', { ascending: false });
 
-            if (error) {
-                console.error('Supabase fetch chat logs error:', error);
-            }
-
-            // 2. Load from LocalStorage
-            const localData = await AdminService._getData('gt_chat_logs', initialChatLogs);
-
-            // 3. Merge Logic: Prioritize remote data but keep local-only entries
-            // This handles cases where Supabase hasn't synced yet or RLS failed
-            const remoteIds = new Set((remoteData || []).map(log => String(log.id)));
-            const uniqueLocal = (localData || []).filter(log => !remoteIds.has(String(log.id)));
-
-            const mergedData = [...(remoteData || []), ...uniqueLocal].sort((a, b) => {
-                // Approximate sort by ID (timestamp) if created_at is missing for local
-                const getTime = (log) => log.created_at ? new Date(log.created_at).getTime() : parseInt(log.id);
-                return getTime(b) - getTime(a);
-            });
-
-            // Sync with local storage for offline/fallback (silent update)
-            if (remoteData && remoteData.length > 0) {
-                AdminService._saveData('gt_chat_logs', mergedData, { silent: true });
-            }
-
-            return mergedData;
-        } catch (e) {
-            console.error('getChatLogs unexpected error:', e);
-            return await AdminService._getData('gt_chat_logs', initialChatLogs);
-        }
-    },
-
-    async addChatLog(log) {
-        console.log('Sending chat log to persistence layer...', log.id);
-        const logEntry = {
-            id: String(log.id),
-            user: log.user,
-            status: log.status,
-            duration: log.duration,
-            messages: log.messages,
-            form_data: log.formData,
-            date: log.date || new Date().toISOString().split('T')[0],
-            time: log.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        };
-
-        // 1. Save to Supabase (Upsert)
-        try {
-            const { error } = await supabase
-                .from('gt_chat_logs')
-                .upsert([logEntry]);
-
-            if (error) {
-                console.error('Supabase add/update chat log error:', error.message);
-                console.warn('Fallback to LocalStorage. Data will sync on next successful refresh.');
-            } else {
-                console.log('Successfully synced chat log to Supabase:', log.id);
-            }
-        } catch (e) {
-            console.error('addChatLog Supabase error:', e);
-        }
-
-        // 2. Always save to LocalStorage (Local Truth)
-        const logs = await AdminService._getData('gt_chat_logs', initialChatLogs);
-        const existingIndex = logs.findIndex(l => String(l.id) === String(log.id));
-
-        let newLogs;
-        if (existingIndex !== -1) {
-            const updatedLogs = [...logs];
-            updatedLogs[existingIndex] = logEntry;
-            newLogs = updatedLogs;
-        } else {
-            newLogs = [logEntry, ...logs];
-        }
-
-        AdminService._saveData('gt_chat_logs', newLogs);
-        return logEntry;
-    },
-
-    async getChatStats() {
-        const logs = await AdminService.getChatLogs();
-        const totalChats = logs.length;
-        const leadsCaptured = logs.filter(l => l.status === 'Lead Captured').length;
-
-        // Simple satisfaction calculation based on leads or messages (mock logic based on real logs)
-        const satisfactionValue = logs.length > 5 ? '4.9/5' : 'N/A';
-
-        return {
-            totalChats,
-            leadsCaptured,
-            avgDuration: totalChats > 0 ? '3m 12s' : '0m 0s',
-            satisfaction: satisfactionValue
-        };
-    },
 
     getFeedbackReviews: async () => {
         return [
@@ -2975,7 +2876,7 @@ const AdminService = {
             const { data, error } = await supabase
                 .from('gt_chat_logs')
                 .select('*')
-                .order('timestamp', { ascending: false });
+                .order('created_at', { ascending: false });
             if (error) throw error;
 
             // Normalize data mapping (snake_case from Supabase -> camelCase for UI)
