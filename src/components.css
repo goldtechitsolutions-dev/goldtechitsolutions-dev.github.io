@@ -186,10 +186,61 @@
 .hero-subtitle {
     font-size: 1.25rem;
     color: #CBD5E1;
-    /* Light Slate */
     margin-bottom: 2.5rem;
     font-weight: 400;
     max-width: 90%;
+}
+
+/* New classes for HeroVideo */
+.hero-content-card {
+    max-width: 850px;
+    padding: 80px 60px;
+    background: linear-gradient(135deg, rgba(0, 31, 63, 0.4) 0%, rgba(0, 10, 20, 0.6) 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-left: 2px solid rgba(212, 175, 55, 0.5);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 0 40px 40px 0;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(212, 175, 55, 0.05);
+    color: #fff;
+    margin-left: -20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-category {
+    display: inline-block;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 6px;
+    color: #D4AF37;
+    margin-bottom: 25px;
+    font-family: 'Inter', sans-serif;
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.hero-title {
+    font-size: 5rem;
+    line-height: 1;
+    font-weight: 800;
+    margin-bottom: 35px;
+    background: linear-gradient(to bottom, #FFFFFF 30%, #D4AF37 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+    letter-spacing: -1.5px;
+}
+
+.booking-hero-title {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: -1px;
 }
 
 /* Services - Clean Grid */

@@ -255,7 +255,7 @@ const BookingModal = () => {
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
                                 >
-                                    <h2 style={{ fontSize: '3rem', marginBottom: '1.5rem', color: '#fff', fontWeight: '800', letterSpacing: '-1px' }}>
+                                    <h2 className="booking-hero-title">
                                         Ready to Transform Your <span style={{
                                             background: 'linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)',
                                             WebkitBackgroundClip: 'text',

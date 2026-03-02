@@ -172,23 +172,6 @@ const HeroVideo = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 1, ease: "easeOut" }}
                     className="hero-content-card"
-                    style={{
-                        maxWidth: '850px',
-                        padding: '80px 60px',
-                        background: 'linear-gradient(135deg, rgba(0, 31, 63, 0.4) 0%, rgba(0, 10, 20, 0.6) 100%)',
-                        backdropFilter: 'blur(12px)',
-                        WebkitBackdropFilter: 'blur(12px)',
-                        borderLeft: '2px solid rgba(212, 175, 55, 0.5)',
-                        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRight: '1px solid rgba(255, 255, 255, 0.05)',
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-                        borderRadius: '0 40px 40px 0',
-                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(212, 175, 55, 0.05)',
-                        color: '#fff',
-                        marginLeft: '-20px',
-                        position: 'relative',
-                        overflow: 'hidden'
-                    }}
                 >
                     {/* Subtle Internal Glow */}
                     <div style={{
@@ -209,54 +192,15 @@ const HeroVideo = () => {
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: 0.8, ease: "easeInOut" }}
                         >
-                            <span
-                                className="hero-category"
-                                style={{
-                                    display: 'inline-block',
-                                    fontSize: '1.5rem',
-                                    fontWeight: '600',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '6px',
-                                    color: '#D4AF37',
-                                    marginBottom: '25px',
-                                    fontFamily: "'Outfit', sans-serif",
-                                    textShadow: '0 0 10px rgba(212, 175, 55, 0.3)'
-                                }}>
+                            <span className="hero-category">
                                 IT Services & Consulting
                             </span>
 
-                            <h2
-                                className="hero-title"
-                                style={{
-                                    fontSize: '5rem',
-                                    lineHeight: '1',
-                                    fontWeight: '800',
-                                    marginBottom: '35px',
-                                    fontFamily: "'Playfair Display', serif",
-                                    background: 'linear-gradient(to bottom, #FFFFFF 30%, #D4AF37 100%)',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
-                                    filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))',
-                                    letterSpacing: '-1.5px'
-                                }}>
+                            <h2 className="hero-title">
                                 {videoSlides[current].title}
                             </h2>
 
-                            <p
-                                className="hero-subtitle"
-                                style={{
-                                    fontSize: '1.4rem',
-                                    lineHeight: '1.8',
-                                    color: 'rgba(255, 255, 255, 0.9)',
-                                    marginBottom: '50px',
-                                    fontWeight: '300',
-                                    fontFamily: "'Outfit', sans-serif",
-                                    letterSpacing: '0.5px',
-                                    maxWidth: '95%',
-                                    textShadow: '0 2px 4px rgba(0,0,0,0.4)',
-                                    borderLeft: '1px solid rgba(212, 175, 55, 0.3)',
-                                    paddingLeft: '20px'
-                                }}>
+                            <p className="hero-subtitle">
                                 {videoSlides[current].subtitle}
                             </p>
 
