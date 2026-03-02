@@ -171,6 +171,7 @@ const HeroVideo = () => {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 1, ease: "easeOut" }}
+                    className="hero-content-card"
                     style={{
                         maxWidth: '850px',
                         padding: '80px 60px',
@@ -208,48 +209,54 @@ const HeroVideo = () => {
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: 0.8, ease: "easeInOut" }}
                         >
-                            <span style={{
-                                display: 'inline-block',
-                                fontSize: '1.5rem',
-                                fontWeight: '600',
-                                textTransform: 'uppercase',
-                                letterSpacing: '6px',
-                                color: '#D4AF37',
-                                marginBottom: '25px',
-                                fontFamily: "'Outfit', sans-serif",
-                                textShadow: '0 0 10px rgba(212, 175, 55, 0.3)'
-                            }}>
+                            <span
+                                className="hero-category"
+                                style={{
+                                    display: 'inline-block',
+                                    fontSize: '1.5rem',
+                                    fontWeight: '600',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '6px',
+                                    color: '#D4AF37',
+                                    marginBottom: '25px',
+                                    fontFamily: "'Outfit', sans-serif",
+                                    textShadow: '0 0 10px rgba(212, 175, 55, 0.3)'
+                                }}>
                                 IT Services & Consulting
                             </span>
 
-                            <h1 style={{
-                                fontSize: '5rem',
-                                lineHeight: '1',
-                                fontWeight: '800',
-                                marginBottom: '35px',
-                                fontFamily: "'Playfair Display', serif",
-                                background: 'linear-gradient(to bottom, #FFFFFF 30%, #D4AF37 100%)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))',
-                                letterSpacing: '-1.5px'
-                            }}>
+                            <h2
+                                className="hero-title"
+                                style={{
+                                    fontSize: '5rem',
+                                    lineHeight: '1',
+                                    fontWeight: '800',
+                                    marginBottom: '35px',
+                                    fontFamily: "'Playfair Display', serif",
+                                    background: 'linear-gradient(to bottom, #FFFFFF 30%, #D4AF37 100%)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))',
+                                    letterSpacing: '-1.5px'
+                                }}>
                                 {videoSlides[current].title}
-                            </h1>
+                            </h2>
 
-                            <p style={{
-                                fontSize: '1.4rem',
-                                lineHeight: '1.8',
-                                color: 'rgba(255, 255, 255, 0.9)',
-                                marginBottom: '50px',
-                                fontWeight: '300',
-                                fontFamily: "'Outfit', sans-serif",
-                                letterSpacing: '0.5px',
-                                maxWidth: '95%',
-                                textShadow: '0 2px 4px rgba(0,0,0,0.4)',
-                                borderLeft: '1px solid rgba(212, 175, 55, 0.3)',
-                                paddingLeft: '20px'
-                            }}>
+                            <p
+                                className="hero-subtitle"
+                                style={{
+                                    fontSize: '1.4rem',
+                                    lineHeight: '1.8',
+                                    color: 'rgba(255, 255, 255, 0.9)',
+                                    marginBottom: '50px',
+                                    fontWeight: '300',
+                                    fontFamily: "'Outfit', sans-serif",
+                                    letterSpacing: '0.5px',
+                                    maxWidth: '95%',
+                                    textShadow: '0 2px 4px rgba(0,0,0,0.4)',
+                                    borderLeft: '1px solid rgba(212, 175, 55, 0.3)',
+                                    paddingLeft: '20px'
+                                }}>
                                 {videoSlides[current].subtitle}
                             </p>
 
@@ -257,7 +264,7 @@ const HeroVideo = () => {
                                 href="#contact"
                                 whileHover={{ scale: 1.05, boxShadow: '0 0 25px rgba(212, 175, 55, 0.4)' }}
                                 whileTap={{ scale: 0.95 }}
-                                className="btn"
+                                className="btn hero-cta"
                                 style={{
                                     display: 'inline-flex',
                                     alignItems: 'center',
@@ -291,7 +298,7 @@ const HeroVideo = () => {
             </div>
 
             {/* Controls */}
-            <div style={{ position: 'absolute', bottom: '40px', right: '40px', zIndex: 20, display: 'flex', gap: '10px' }}>
+            <div className="hero-controls" style={{ position: 'absolute', bottom: '40px', right: '40px', zIndex: 20, display: 'flex', gap: '10px' }}>
                 <button onClick={prevSlide} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', padding: '10px', borderRadius: '50%', cursor: 'pointer', backdropFilter: 'blur(5px)' }}>
                     <ChevronLeft size={24} />
                 </button>
@@ -301,7 +308,7 @@ const HeroVideo = () => {
             </div>
 
             {/* Indicators */}
-            <div style={{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', zIndex: 20, display: 'flex', gap: '8px' }}>
+            <div className="hero-indicators" style={{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', zIndex: 20, display: 'flex', gap: '8px' }}>
                 {videoSlides.map((_, idx) => (
                     <div
                         key={idx}

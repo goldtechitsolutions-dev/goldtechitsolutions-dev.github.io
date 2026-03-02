@@ -79,9 +79,6 @@ const ContactForm = () => {
                 stage: 'New'
             };
 
-            await AdminService.addLead(newLead);
-
-            // Also save as Query for Admin/Sales Portals
             const newQuery = {
                 name: data.get('name'),
                 email: data.get('email'),
@@ -89,7 +86,12 @@ const ContactForm = () => {
                 message: data.get('message'),
                 role: 'Visitor'
             };
-            await AdminService.addQuery(newQuery);
+
+            // Parallel Submission for best mobile performance
+            await Promise.all([
+                AdminService.addLead(newLead),
+                AdminService.addQuery(newQuery)
+            ]);
 
             form.reset();
             setStatus("SUCCESS");

@@ -89,7 +89,7 @@ const About = () => {
                         viewport={{ once: true }}
                         style={{ height: '350px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
                     >
-                        <img src={corporateTeam} alt="GoldTech Team" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img src={corporateTeam} alt="GOLDTECH Corporate Team Collaborating on IT Solutions" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </motion.div>
                 </div>
             </div>

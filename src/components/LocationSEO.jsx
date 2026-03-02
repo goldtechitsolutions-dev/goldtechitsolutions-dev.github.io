@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Shield, Server, Code, ChartBar, MapPin, ChevronRight, CheckCircle, ArrowRight } from 'lucide-react';
-import '../components.css';
+import SEO from './SEO';
 
 // Capitalize first letter of each word
 const formatCityName = (str) => {
@@ -16,24 +16,7 @@ const LocationSEO = () => {
 
     useEffect(() => {
         setIsVisible(true);
-        // Dynamic SEO Meta Tags
-        document.title = `IT Support & Managed Services in ${formattedCity} | GoldTech IT Solutions`;
-
-        // Update Meta Description
-        let metaDescription = document.querySelector('meta[name="description"]');
-        if (!metaDescription) {
-            metaDescription = document.createElement('meta');
-            metaDescription.name = "description";
-            document.head.appendChild(metaDescription);
-        }
-        metaDescription.content = `Looking for reliable IT support, cybersecurity, and managed IT services in ${formattedCity}? GoldTech IT Solutions provides premium tech solutions tailored for local businesses.`;
-
         window.scrollTo(0, 0);
-
-        return () => {
-            // Optional: reset title on unmount if needed, though usually handled by other page components
-            document.title = "GoldTech IT Solutions | Excellence Delivered";
-        }
     }, [formattedCity]);
 
     const localServices = [
@@ -68,6 +51,13 @@ const LocationSEO = () => {
 
     return (
         <div className="location-seo-page" style={{ background: '#0f172a', minHeight: '100vh', color: '#f8fafc', paddingBottom: '80px' }}>
+            <SEO
+                title={`IT Support & Managed Services in ${formattedCity}`}
+                description={`Looking for reliable IT support, cybersecurity, and managed IT services in ${formattedCity}? GOLDTECH provides premium tech solutions tailored for local businesses.`}
+                keywords={`IT Support ${formattedCity}, Managed IT ${formattedCity}, Cybersecurity ${formattedCity}, GoldTech ${formattedCity}`}
+                url={`locations/${city}`}
+                location={formattedCity}
+            />
             {/* Hero Section */}
             <section style={{
                 position: 'relative',

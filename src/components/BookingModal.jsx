@@ -285,7 +285,7 @@ const BookingModal = () => {
                                             letterSpacing: '1px'
                                         }}
                                     >
-                                        Book Consultation
+                                        FREE CONSULTATION
                                     </motion.button>
                                 </motion.div>
                             ) : submitted ? (

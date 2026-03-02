@@ -1,14 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /client
-Disallow: /hr
-Disallow: /finance
-Disallow: /manager
-Disallow: /sales
-Disallow: /tasks
-Disallow: /project-management
-Disallow: /research
-Disallow: /employee
 
-Sitemap: https://goldtechitsolutions-dev.github.io/sitemap.xml
+Sitemap: https://www.goldtech.in/sitemap.xml

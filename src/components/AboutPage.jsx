@@ -43,7 +43,7 @@ const AboutPage = () => {
                         Pioneering Digital Excellence
                     </motion.h1>
                     <p style={{ maxWidth: '700px', margin: '0 auto', fontSize: '1.25rem', color: 'rgba(255,255,255,0.9)', lineHeight: '1.6' }}>
-                        We are GoldTech. A global technology partner dedicated to transforming businesses through innovation, integrity, and intelligent solutions.
+                        Headquartered in Hyderabad, GoldTech is a global technology partner dedicated to transforming businesses through innovation, integrity, and elite software solutions.
                     </p>
                 </div>
             </div>
@@ -75,7 +75,7 @@ const AboutPage = () => {
                             boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
                             position: 'relative'
                         }}>
-                            <img src={aboutMain} alt="GoldTech Office" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={aboutMain} alt="Modern GOLDTECH Office and Innovation Center" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
                     </div>
                 </div>
@@ -110,7 +110,7 @@ const AboutPage = () => {
                         height: '400px'
                     }}>
                         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(0,0,0,0.6) 0%, transparent 50%)', zIndex: 1 }}></div>
-                        <img src={corporateTeam} alt="GoldTech Team" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img src={corporateTeam} alt="GOLDTECH Expert Team members in a meeting" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         <div style={{ position: 'absolute', bottom: '30px', left: '0', width: '100%', zIndex: 2 }}>
                             <h3 style={{ color: '#fff', fontSize: '2.5rem', marginBottom: '10px' }}>Collaboration at our Core</h3>
                             <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.2rem' }}>Driven by passion, united by excellence.</p>

@@ -410,11 +410,13 @@ const ChatBot = () => {
         <>
             {/* Chat Trigger Button */}
             <div
+                className="chatbot-trigger-wrap"
                 style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 9998 }}
             >
                 <div style={{ position: 'relative' }}>
                     {/* Tooltip/Speech Bubble */}
                     <motion.div
+                        className="chatbot-tooltip"
                         initial={{ opacity: 0, scale: 0.8, x: -20 }}
                         animate={{ opacity: 1, scale: 1, x: 0 }}
                         transition={{ delay: 1, duration: 0.5 }}
@@ -449,6 +451,7 @@ const ChatBot = () => {
 
                     <motion.button
                         onClick={() => setIsOpen(!isOpen)}
+                        className="chatbot-trigger-btn"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         style={{
@@ -492,6 +495,7 @@ const ChatBot = () => {
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
+                        className="chatbot-window"
                         initial={{ opacity: 0, y: 20, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}

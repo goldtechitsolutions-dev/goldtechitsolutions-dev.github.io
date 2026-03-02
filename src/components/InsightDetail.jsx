@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, User, Calendar, Tag } from 'lucide-react';
 import DOMPurify from 'dompurify';
+import SEO from './SEO';
+import Breadcrumbs from './Breadcrumbs';
 
 const insightData = {
     "the-future-of-ai-in-banking": {
@@ -63,6 +65,11 @@ const InsightDetail = () => {
 
     return (
         <div className="page-detail" style={{ paddingTop: '80px', minHeight: '100vh', background: '#f8fafc' }}>
+            <SEO
+                title={insight.title}
+                description={DOMPurify.sanitize(insight.content).substring(0, 155)}
+                url={`insights/${id}`}
+            />
             <div className="detail-hero" style={{
                 background: 'linear-gradient(135deg, var(--color-blue-dark) 0%, #0f172a 100%)',
                 color: '#fff',
@@ -97,6 +104,7 @@ const InsightDetail = () => {
             </div>
 
             <div className="container" style={{ padding: '60px 20px', maxWidth: '900px' }}>
+                <Breadcrumbs />
                 <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '40px', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
                     <ArrowLeft size={20} /> Back to Home
                 </Link>

@@ -50,6 +50,7 @@ const Admin = ({ currentUser }) => {
     const [stats, setStats] = useState([]);
     const [applications, setApplications] = useState([]);
     const [queries, setQueries] = useState([]);
+    const [leads, setLeads] = useState([]);
     const [meetings, setMeetings] = useState([]);
     const [users, setUsers] = useState([]);
     const [roles, setRoles] = useState([]);
@@ -159,6 +160,7 @@ const Admin = ({ currentUser }) => {
 
     // Privileged Access Management Search State
     const [searchTerm, setSearchTerm] = useState('');
+    const [editingRoleId, setEditingRoleId] = useState(null); // RBAC Edit State
     const filteredUsers = useMemo(() => {
         if (!searchTerm) return users;
         return users.filter(u =>
@@ -249,12 +251,13 @@ const Admin = ({ currentUser }) => {
         try {
             // Use Promise.all for parallel fetching
             const [
-                apps, qs, meets, usrs, rls, jbs, leaves,
+                apps, qs, lds, meets, usrs, rls, jbs, leaves,
                 health, services, logs, infra, cLogs, keys, jit, audits, creds, sec,
                 metrics, proj, fin, info, fetchedClients, history, cLogs_fetched, cStats_fetched
             ] = await Promise.all([
                 AdminService.getApplications(),
                 AdminService.getQueries(),
+                AdminService.getLeads(),
                 AdminService.getMeetings(),
                 AdminService.getUsers(),
                 AdminService.getRoles(),
@@ -282,6 +285,7 @@ const Admin = ({ currentUser }) => {
 
             setApplications(apps || []);
             setQueries(qs || []);
+            setLeads(lds || []);
             setMeetings(meets || []);
             setUsers(usrs || []);
             setRoles(rls || []);
@@ -309,7 +313,7 @@ const Admin = ({ currentUser }) => {
 
             setStats([
                 { title: 'Total Visits', value: '12,450', change: '+12%', icon: <Users size={24} color="#004687" /> },
-                { title: 'Active Leads', value: (qs?.length || 0).toString(), change: 'Hot', icon: <MessageSquare size={24} color="#f59e0b" /> },
+                { title: 'Active Leads', value: (lds?.length || 0).toString(), change: 'Hot', icon: <MessageSquare size={24} color="#f59e0b" /> },
                 { title: 'Talent Pipeline', value: (apps?.length || 0).toString(), change: 'Active', icon: <Briefcase size={24} color="#D4AF37" /> },
                 { title: 'Infrastructure', value: '99.98%', change: 'Uptime', icon: <Activity size={24} color="#3b82f6" /> },
                 { title: 'Security', value: 'Secure', change: 'No Alerts', icon: <Shield size={24} color="#D4AF37" /> },
@@ -648,7 +652,8 @@ const Admin = ({ currentUser }) => {
                 await AdminService.updateApplication({ ...app, status });
             } else if (candidate) {
                 // Use the full selectedItem to capture all fields (date, link, comments, etc)
-                await AdminService.updateCandidate(id, { ...selectedItem, stage: status });
+                // [FIX] Ensure we update the 'stage' field for candidates/applications consistently
+                await AdminService.updateCandidate(id, { ...selectedItem, stage: status, status: status });
             }
         } else if (type === 'query') {
             const q = queries.find(q => q.id == id);
@@ -1123,7 +1128,8 @@ const Admin = ({ currentUser }) => {
                                     {(() => {
                                         const combinedActivity = [
                                             ...applications.map(a => ({ ...a, type: 'Application', action: 'Applied for role' })),
-                                            ...queries.map(q => ({ ...q, type: 'Query', action: 'Sent a message' }))
+                                            ...queries.map(q => ({ ...q, type: 'Query', action: 'Sent a message' })),
+                                            ...leads.map(l => ({ ...l, type: 'Lead', action: 'New contact' }))
                                         ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
                                         return combinedActivity.slice(0, 4).map((item, idx) => (
@@ -1651,7 +1657,7 @@ const Admin = ({ currentUser }) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {queries.filter(q => !q.message?.includes('[SECURITY]')).map((q) => (
+                                    {leads.map((q) => (
                                         <tr key={q.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
                                             <td style={tdStyle}>
                                                 <div style={{ fontWeight: '700', color: '#fff' }}>{q.name}</div>
@@ -1845,6 +1851,7 @@ const Admin = ({ currentUser }) => {
                                     <thead>
                                         <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
                                             <th style={thStyle}>Client Partner</th>
+                                            <th style={thStyle}>Contact Info</th>
                                             <th style={thStyle}>Session Objective</th>
                                             <th style={thStyle}>Temporal Window</th>
                                             <th style={thStyle}>Meeting Status</th>
@@ -1856,6 +1863,10 @@ const Admin = ({ currentUser }) => {
                                         {meetings.map((m) => (
                                             <tr key={m.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
                                                 <td style={{ ...tdStyle, fontWeight: '800', color: '#fff' }}>{m.name}</td>
+                                                <td style={tdStyle}>
+                                                    <div style={{ fontSize: '0.85rem' }}>{m.email}</div>
+                                                    <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{m.mobile || 'N/A'}</div>
+                                                </td>
                                                 <td style={tdStyle}>{m.topic}</td>
                                                 <td style={tdStyle}>{m.date} at {m.time}</td>
                                                 <td style={tdStyle}>
@@ -2411,57 +2422,6 @@ const Admin = ({ currentUser }) => {
 
                 {/* --- Client Onboarding (Moved below) --- */}
 
-                {
-                    activeTab === 'settings' && (
-                        <div style={cardStyle}>
-                            <h3 style={{ marginBottom: '20px', color: '#1e293b' }}>Role-Based Access Control (RBAC)</h3>
-                            <div style={{ overflowX: 'auto', paddingBottom: '10px' }} className="custom-scrollbar">
-                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                    <thead>
-                                        <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
-                                            <th style={thStyle}>Role Name</th>
-                                            <th style={thStyle}>User Management</th>
-                                            <th style={thStyle}>Content Engine</th>
-                                            <th style={thStyle}>Intelligence Reports</th>
-                                            <th style={thStyle}>System Configuration</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {roles.map((role) => (
-                                            <tr key={role.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
-                                                <td style={{ ...tdStyle, fontWeight: '800', color: '#fff' }}>{role.name}</td>
-                                                {['users', 'content', 'reports', 'settings'].map(perm => (
-                                                    <td key={perm} style={tdStyle}>
-                                                        <select
-                                                            value={role.permissions[perm]}
-                                                            onChange={(e) => handlePermissionChange(role.id, perm, e.target.value)}
-                                                            style={{
-                                                                padding: '8px 12px',
-                                                                borderRadius: '8px',
-                                                                background: 'rgba(0,0,0,0.2)',
-                                                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                                                color: '#fff',
-                                                                width: '100%',
-                                                                maxWidth: '140px',
-                                                                fontSize: '0.8rem',
-                                                                outline: 'none'
-                                                            }}
-                                                            disabled={role.name === 'Admin'}
-                                                        >
-                                                            <option value="read_write">Full Access</option>
-                                                            <option value="read">View Only</option>
-                                                            <option value="none">Restricted</option>
-                                                        </select>
-                                                    </td>
-                                                ))}
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )
-                }
 
                 {
                     activeTab === 'reports' && (
@@ -3556,7 +3516,7 @@ const Admin = ({ currentUser }) => {
                                                         <span style={{ fontWeight: '500' }}>{selectedItem.name || selectedItem.user || 'Unknown'}</span>
                                                     </div>
 
-                                                    {['application', 'query'].includes(modalType) && (
+                                                    {['application', 'query', 'meeting'].includes(modalType) && (
                                                         <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '10px', fontSize: '1rem', color: '#f8fafc' }}>
                                                             <span style={{ color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', fontSize: '0.8rem' }}>Endpoint:</span>
                                                             <span style={{ fontWeight: '500' }}>{selectedItem.email}</span>
@@ -3620,6 +3580,10 @@ const Admin = ({ currentUser }) => {
 
                                                     {modalType === 'meeting' && (
                                                         <>
+                                                            <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '10px', fontSize: '1rem', color: '#f8fafc', paddingBottom: '10px' }}>
+                                                                <span style={{ color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', fontSize: '0.8rem' }}>Mobile:</span>
+                                                                <span style={{ fontWeight: '500' }}>{selectedItem.mobile || 'N/A'}</span>
+                                                            </div>
                                                             <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '10px', fontSize: '1rem', color: '#f8fafc' }}>
                                                                 <span style={{ color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', fontSize: '0.8rem' }}>Objective:</span>
                                                                 <span style={{ fontWeight: '500' }}>{selectedItem.topic}</span>
@@ -3692,8 +3656,8 @@ const Admin = ({ currentUser }) => {
                                                             <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr auto', gap: '15px', fontSize: '1rem', color: '#f8fafc', alignItems: 'center' }}>
                                                                 <span style={{ color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', fontSize: '0.8rem' }}>Update Status:</span>
                                                                 <select
-                                                                    value={selectedItem.status}
-                                                                    onChange={(e) => setSelectedItem({ ...selectedItem, status: e.target.value })}
+                                                                    value={selectedItem.status || selectedItem.stage}
+                                                                    onChange={(e) => setSelectedItem({ ...selectedItem, status: e.target.value, stage: e.target.value })}
                                                                     style={{
                                                                         padding: '10px 15px',
                                                                         borderRadius: '10px',
@@ -4292,7 +4256,7 @@ const Admin = ({ currentUser }) => {
 
                 {
                     activeTab === 'settings' && (
-                        <div style={{ maxWidth: '800px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div style={cardStyle}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px' }}>
                                     <div style={{
@@ -4310,7 +4274,7 @@ const Admin = ({ currentUser }) => {
 
                                 {isEditingCompanyInfo ? (
                                     <form onSubmit={handleCompanyInfoSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
                                             <div style={{ gridColumn: 'span 2' }}>
                                                 <label style={{ display: 'block', marginBottom: '10px', fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Headquarters Address</label>
                                                 <div style={{ position: 'relative' }}>
@@ -4364,34 +4328,6 @@ const Admin = ({ currentUser }) => {
                                                     />
                                                 </div>
                                             </div>
-
-                                            <div style={{ gridColumn: 'span 2', marginTop: '10px' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                                                    <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Footer Location Opacity</label>
-                                                    <span style={{ color: '#D4AF37', fontWeight: '800', fontSize: '0.9rem' }}>{Math.round(companyInfo.footerOpacity * 100)}%</span>
-                                                </div>
-                                                <input
-                                                    type="range"
-                                                    min="0"
-                                                    max="1"
-                                                    step="0.1"
-                                                    value={companyInfo.footerOpacity}
-                                                    onChange={(e) => setCompanyInfo({ ...companyInfo, footerOpacity: parseFloat(e.target.value) })}
-                                                    style={{
-                                                        width: '100%',
-                                                        height: '6px',
-                                                        background: 'rgba(255, 255, 255, 0.1)',
-                                                        borderRadius: '5px',
-                                                        appearance: 'none',
-                                                        outline: 'none',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                />
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px' }}>
-                                                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Transparent</span>
-                                                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Opaque</span>
-                                                </div>
-                                            </div>
                                         </div>
 
                                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px', marginTop: '10px' }}>
@@ -4404,55 +4340,153 @@ const Admin = ({ currentUser }) => {
                                                     fontWeight: '600'
                                                 }}
                                             >
-                                                Cancel
+                                                CANCEL
                                             </button>
-                                            <button type="submit" style={{
-                                                background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)',
-                                                color: '#000', border: 'none', padding: '14px 40px', fontSize: '0.9rem',
-                                                fontWeight: '800', borderRadius: '12px', cursor: 'pointer',
-                                                transition: 'all 0.3s', boxShadow: '0 10px 20px -5px rgba(212, 175, 55, 0.3)',
-                                                textTransform: 'uppercase', letterSpacing: '1px'
-                                            }}>
-                                                Save Settings
+                                            <button
+                                                type="submit"
+                                                style={{
+                                                    background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)', color: '#000',
+                                                    padding: '12px 35px', borderRadius: '12px', cursor: 'pointer', border: 'none',
+                                                    fontWeight: '800', transition: 'all 0.3s', boxShadow: '0 10px 20px rgba(212, 175, 55, 0.2)'
+                                                }}
+                                            >
+                                                SAVE PROFILE
                                             </button>
                                         </div>
                                     </form>
                                 ) : (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                                            <div style={{ gridColumn: 'span 2', background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                                <h4 style={{ color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <Building size={16} /> Headquarters Address
-                                                </h4>
-                                                <p style={{ color: '#fff', margin: 0, whiteSpace: 'pre-wrap' }}>{companyInfo.address || 'No address configured'}</p>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+                                            <div style={{ background: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px' }}>
+                                                    <Building size={20} color="#D4AF37" />
+                                                    <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', textTransform: 'uppercase' }}>Headquarters</h4>
+                                                </div>
+                                                <p style={{ color: '#fff', fontSize: '1rem', lineHeight: '1.6', margin: 0 }}>{companyInfo.address || 'No address defined'}</p>
                                             </div>
 
-                                            <div style={{ background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                                <h4 style={{ color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <Mail size={16} /> Global Email
-                                                </h4>
-                                                <p style={{ color: '#fff', margin: 0 }}>{companyInfo.email || 'No email configured'}</p>
+                                            <div style={{ background: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px' }}>
+                                                    <Mail size={20} color="#3b82f6" />
+                                                    <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', textTransform: 'uppercase' }}>Global Email</h4>
+                                                </div>
+                                                <p style={{ color: '#fff', fontSize: '1rem', margin: 0, fontWeight: '600' }}>{companyInfo.email || 'No email defined'}</p>
                                             </div>
 
-                                            <div style={{ background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                                <h4 style={{ color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <Phone size={16} /> Secure Hotlink
-                                                </h4>
-                                                <p style={{ color: '#fff', margin: 0 }}>{companyInfo.phone || 'No phone configured'}</p>
+                                            <div style={{ background: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px' }}>
+                                                    <Phone size={20} color="#10b981" />
+                                                    <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', textTransform: 'uppercase' }}>Secure Hotlink</h4>
+                                                </div>
+                                                <p style={{ color: '#fff', fontSize: '1rem', margin: 0, fontWeight: '600' }}>{companyInfo.phone || 'No phone defined'}</p>
                                             </div>
                                         </div>
 
-                                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                                             <button
                                                 onClick={() => setIsEditingCompanyInfo(true)}
                                                 style={{
-                                                    background: 'rgba(212, 175, 55, 0.1)',
-                                                    color: '#D4AF37', border: '1px solid rgba(212, 175, 55, 0.3)', padding: '12px 30px', fontSize: '0.9rem',
-                                                    fontWeight: '800', borderRadius: '12px', cursor: 'pointer',
-                                                    transition: 'all 0.3s', display: 'flex', alignItems: 'center', gap: '8px'
-                                                }}>
-                                                <Edit size={16} /> Edit Profile
+                                                    background: 'rgba(212, 175, 55, 0.1)', color: '#D4AF37', border: '1px solid rgba(212, 175, 55, 0.3)',
+                                                    padding: '10px 25px', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px',
+                                                    fontWeight: '700', fontSize: '0.9rem'
+                                                }}
+                                            >
+                                                <Edit size={16} /> EDIT PROFILE
                                             </button>
+                                        </div>
+
+                                        {/* RBAC Section Integrated here as per user request */}
+                                        <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '30px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                                <div>
+                                                    <h3 style={{ color: '#fff', fontSize: '1.2rem', fontWeight: '800', margin: 0 }}>Role-Based Access Control (RBAC)</h3>
+                                                    <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '5px 0 0 0' }}>Configure permissions and authorization tiers</p>
+                                                </div>
+                                                <Lock size={24} color="#D4AF37" style={{ opacity: 0.5 }} />
+                                            </div>
+
+                                            <div style={{ overflowX: 'auto', paddingBottom: '10px' }} className="custom-scrollbar">
+                                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                                    <thead>
+                                                        <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                                                            <th style={{ ...thStyle, background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Role Name</th>
+                                                            <th style={{ ...thStyle, background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>User Management</th>
+                                                            <th style={{ ...thStyle, background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Content Engine</th>
+                                                            <th style={{ ...thStyle, background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Intelligence Reports</th>
+                                                            <th style={{ ...thStyle, background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>System Configuration</th>
+                                                            <th style={{ ...thStyle, textAlign: 'right', background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Directives</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {roles.map((role) => (
+                                                            <tr key={role.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
+                                                                <td style={{ ...tdStyle, fontWeight: '800', color: '#fff', fontSize: '0.85rem' }}>{role.name}</td>
+                                                                {['users', 'content', 'reports', 'settings'].map(perm => (
+                                                                    <td key={perm} style={tdStyle}>
+                                                                        {editingRoleId === role.id && role.name !== 'Admin' ? (
+                                                                            <select
+                                                                                value={role.permissions[perm]}
+                                                                                onChange={(e) => handlePermissionChange(role.id, perm, e.target.value)}
+                                                                                style={{
+                                                                                    padding: '8px 12px',
+                                                                                    borderRadius: '8px',
+                                                                                    background: 'rgba(0,0,0,0.3)',
+                                                                                    border: '1px solid rgba(212, 175, 55, 0.3)',
+                                                                                    color: '#fff',
+                                                                                    width: '100%',
+                                                                                    maxWidth: '140px',
+                                                                                    fontSize: '0.8rem',
+                                                                                    outline: 'none'
+                                                                                }}
+                                                                            >
+                                                                                <option value="read_write">Full Access</option>
+                                                                                <option value="read">View Only</option>
+                                                                                <option value="none">Restricted</option>
+                                                                            </select>
+                                                                        ) : (
+                                                                            <span style={{
+                                                                                padding: '6px 12px',
+                                                                                borderRadius: '6px',
+                                                                                fontSize: '0.7rem',
+                                                                                fontWeight: '800',
+                                                                                textTransform: 'uppercase',
+                                                                                color: role.permissions[perm] === 'read_write' ? '#10b981' : role.permissions[perm] === 'read' ? '#3b82f6' : '#ef4444',
+                                                                                background: role.permissions[perm] === 'read_write' ? 'rgba(16, 185, 129, 0.1)' : role.permissions[perm] === 'read' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                                                                border: `1px solid ${role.permissions[perm] === 'read_write' ? 'rgba(16, 185, 129, 0.2)' : role.permissions[perm] === 'read' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
+                                                                            }}>
+                                                                                {role.permissions[perm] === 'read_write' ? 'Full Access' : role.permissions[perm] === 'read' ? 'View Only' : 'Restricted'}
+                                                                            </span>
+                                                                        )}
+                                                                    </td>
+                                                                ))}
+                                                                <td style={{ ...tdStyle, textAlign: 'right' }}>
+                                                                    {role.name !== 'Admin' && (
+                                                                        <button
+                                                                            onClick={() => setEditingRoleId(editingRoleId === role.id ? null : role.id)}
+                                                                            style={{
+                                                                                background: editingRoleId === role.id ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)',
+                                                                                border: `1px solid ${editingRoleId === role.id ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255,255,255,0.1)'}`,
+                                                                                color: editingRoleId === role.id ? '#10b981' : '#fff',
+                                                                                padding: '8px 16px',
+                                                                                borderRadius: '8px',
+                                                                                cursor: 'pointer',
+                                                                                transition: 'all 0.2s',
+                                                                                fontSize: '0.75rem',
+                                                                                fontWeight: '800',
+                                                                                display: 'inline-flex',
+                                                                                alignItems: 'center',
+                                                                                gap: '8px'
+                                                                            }}
+                                                                        >
+                                                                            {editingRoleId === role.id ? <><Check size={14} /> DONE</> : <><Edit size={14} /> EDIT</>}
+                                                                        </button>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -4472,7 +4506,6 @@ const Admin = ({ currentUser }) => {
                         </div>
                     )
                 }
-
 
                 {
                     activeTab === 'vault' && (
@@ -4998,7 +5031,7 @@ const Admin = ({ currentUser }) => {
                     </div>
                 )
             }
-        </div >
+        </div>
     );
 };
 

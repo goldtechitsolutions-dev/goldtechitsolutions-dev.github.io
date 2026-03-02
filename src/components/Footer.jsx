@@ -26,7 +26,7 @@ const Footer = () => {
         <footer id="contact" className="footer">
             <div className="container">
                 <div className="footer-content">
-                    <div className="footer-brand">
+                    <div className="footer-brand footer-column">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
                             <img src={logo} alt="GoldTech Logo" style={{ width: '40px', height: 'auto' }} />
                             <div className="brand-name">
@@ -37,7 +37,7 @@ const Footer = () => {
                         <p>Empowering businesses through innovation and technology excellence.</p>
                     </div>
 
-                    <div className="footer-contact">
+                    <div className="footer-contact footer-column">
                         <h4>Contact Us</h4>
                         <ul className="contact-info">
                             <li><span style={{ opacity: companyInfo.footerOpacity !== undefined ? companyInfo.footerOpacity : 1 }}>📍 {companyInfo.address || 'Address not configured'}</span></li>
@@ -46,7 +46,7 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    <div className="footer-links">
+                    <div className="footer-links footer-column">
                         <h4>Quick Links</h4>
                         <ul style={{ color: 'var(--color-text-muted)' }}>
                             <li><Link to="/" onClick={() => window.scrollTo(0, 0)}>Home</Link></li>
@@ -56,9 +56,10 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    <div className="footer-links" style={{ marginLeft: 'auto' }}>
+                    <div className="footer-links footer-column">
                         <h4>Service Areas</h4>
                         <ul style={{ color: 'var(--color-text-muted)' }}>
+                            <li><Link to="/locations/india" onClick={() => window.scrollTo(0, 0)}>India</Link></li>
                             <li><Link to="/locations/new-york" onClick={() => window.scrollTo(0, 0)}>New York</Link></li>
                             <li><Link to="/locations/london" onClick={() => window.scrollTo(0, 0)}>London</Link></li>
                             <li><Link to="/locations/dubai" onClick={() => window.scrollTo(0, 0)}>Dubai</Link></li>

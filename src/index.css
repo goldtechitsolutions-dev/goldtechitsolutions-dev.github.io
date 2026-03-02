@@ -170,3 +170,132 @@ select option:checked {
   color: var(--color-gold-primary);
   font-weight: 600;
 }
+
+/* ==========================================================================
+   Mobile Responsiveness Overrides
+   ========================================================================== */
+@media screen and (max-width: 768px) {
+
+  /* Hero Component Overrides */
+  .hero-content-card {
+    padding: 30px 20px !important;
+    margin-left: 0 !important;
+    margin-bottom: 2rem !important;
+    /* Push slightly up to prevent overlap with bottom controls */
+    border-radius: 20px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .hero-category {
+    font-size: 1rem !important;
+    letter-spacing: 3px !important;
+    margin-bottom: 15px !important;
+  }
+
+  .hero-title {
+    font-size: 2.2rem !important;
+    margin-bottom: 15px !important;
+    letter-spacing: -0.5px !important;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 25px !important;
+  }
+
+  .hero-cta {
+    padding: 12px 24px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .hero-controls {
+    bottom: 20px !important;
+    right: 20px !important;
+  }
+
+  .hero-indicators {
+    bottom: 30px !important;
+    left: 20px !important;
+    transform: none !important;
+  }
+
+  /* ChatBot Overrides */
+  .chatbot-trigger-wrap {
+    bottom: 110px !important;
+    /* Move higher to clear hero buttons & WhatsApp */
+    right: 15px !important;
+  }
+
+  .chatbot-trigger-btn {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .chatbot-tooltip {
+    right: 50px !important;
+    top: -5px !important;
+    font-size: 0.75rem !important;
+    padding: 6px 10px !important;
+  }
+
+  .chatbot-window {
+    width: 92vw !important;
+    right: 4vw !important;
+    bottom: 90px !important;
+    height: 65vh !important;
+    max-height: 550px !important;
+  }
+
+  /* Fix Horizontal Overflow */
+  body,
+  html {
+    overflow-x: hidden !important;
+    position: relative;
+    width: 100%;
+  }
+
+  .app-layout {
+    overflow-x: hidden !important;
+    width: 100%;
+  }
+
+  .career-hero-title {
+    font-size: 2.2rem !important;
+  }
+
+  .career-benefits-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .career-ticker {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+  }
+
+  .career-filter-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr !important;
+    text-align: center;
+    gap: 30px !important;
+  }
+
+  .footer-column {
+    margin-left: 0 !important;
+  }
+
+  .footer-brand div {
+    justify-content: center !important;
+  }
+
+  .contact-info li {
+    justify-content: center !important;
+  }
+}

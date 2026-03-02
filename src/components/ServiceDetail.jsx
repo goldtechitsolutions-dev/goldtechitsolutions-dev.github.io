@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import SEO from './SEO';
+import Breadcrumbs from './Breadcrumbs';
 
 const serviceData = {
     "custom-software-development": {
@@ -292,6 +293,7 @@ const ServiceDetail = () => {
             </div>
 
             <div className="container" style={{ padding: '80px 20px', position: 'relative', zIndex: 3 }}>
+                <Breadcrumbs />
                 <Link to="/" style={{
                     display: 'inline-flex',
                     alignItems: 'center',

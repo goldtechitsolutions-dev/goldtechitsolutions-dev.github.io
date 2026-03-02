@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
+import SEO from './SEO';
+import Breadcrumbs from './Breadcrumbs';
 
 const industryData = {
     "health-care": {
@@ -234,6 +236,12 @@ const IndustryDetail = () => {
             backgroundColor: '#0a192f', // Deep cinematic blue fallback
             position: 'relative'
         }}>
+            <SEO
+                title={`${content.title} IT Solutions`}
+                description={content.overview.substring(0, 155)}
+                image={content.bgImage}
+                url={`industries/${id}`}
+            />
             {/* Cinematic Overlay - Darker for Industries */}
             <div style={{
                 position: 'fixed',
@@ -338,6 +346,7 @@ const IndustryDetail = () => {
             </div>
 
             <div className="container" style={{ padding: '80px 20px', position: 'relative', zIndex: 2 }}>
+                <Breadcrumbs />
                 <Link to="/" style={{
                     display: 'inline-flex',
                     alignItems: 'center',

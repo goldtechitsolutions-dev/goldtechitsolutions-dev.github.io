@@ -64,9 +64,10 @@ const Services = () => {
             color: '#fff' // Ensure text is readable on dark overlay
         }}>
             <SEO
-                title="Our Services"
-                description="Explore GoldTech IT Solutions' comprehensive range of services including Custom Software Development, Cloud Infrastructure, Cybersecurity, and AI & Machine Learning."
+                title="Global IT Services & Solutions"
+                description="Explore GOLDTECH's comprehensive range of enterprise IT services: Custom Software, Cloud Infrastructure, Cybersecurity, and AI Innovation."
                 url="services"
+                keywords="Managed IT Services, Cybersecurity, Cloud Infrastructure, AI & ML, Digital Transformation"
             />
             {/* Dark Overlay */}
             <div style={{

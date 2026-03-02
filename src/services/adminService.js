@@ -2452,7 +2452,18 @@ const AdminService = {
 
     // --- Sales Portal Methods ---
     async getLeads() {
-        return AdminService._getData('gt_leads', initialLeads);
+        try {
+            const { data, error } = await supabase
+                .from('gt_leads')
+                .select('*')
+                .order('id', { ascending: false });
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Supabase fetch leads error, falling back:', error);
+            return AdminService._getData('gt_leads', initialLeads);
+        }
     },
 
     async getDeals() {
@@ -2591,18 +2602,61 @@ const AdminService = {
     },
 
     async addLead(lead) {
-        const leads = await AdminService.getLeads();
-        const newLead = { ...lead, id: Date.now(), status: 'Open' };
-        const newLeads = [newLead, ...leads];
-        AdminService._saveData('gt_leads', newLeads);
-        return newLeads;
+        try {
+            const { data, error } = await supabase
+                .from('gt_leads')
+                .insert([{
+                    name: lead.name,
+                    contact: lead.contact,
+                    email: lead.email,
+                    phone: lead.phone,
+                    message: lead.message,
+                    stage: lead.stage || 'New',
+                    value: lead.value || 0,
+                    source: lead.source || 'Website',
+                    status: lead.status || 'Open',
+                    date: new Date().toISOString().split('T')[0]
+                }])
+                .select();
+
+            if (error) throw error;
+            return data[0];
+        } catch (error) {
+            console.error('Supabase add lead error, falling back:', error);
+            const leads = await AdminService.getLeads();
+            const newLead = { ...lead, id: Date.now(), status: 'Open' };
+            const newLeads = [newLead, ...leads];
+            AdminService._saveData('gt_leads', newLeads);
+            return newLead;
+        }
     },
 
     async updateLead(updatedLead) {
-        const leads = await AdminService.getLeads();
-        const newLeads = leads.map(l => l.id === updatedLead.id ? updatedLead : l);
-        AdminService._saveData('gt_leads', newLeads);
-        return newLeads;
+        try {
+            const { error } = await supabase
+                .from('gt_leads')
+                .update({
+                    name: updatedLead.name,
+                    contact: updatedLead.contact,
+                    email: updatedLead.email,
+                    phone: updatedLead.phone,
+                    message: updatedLead.message,
+                    stage: updatedLead.stage,
+                    value: updatedLead.value,
+                    source: updatedLead.source,
+                    status: updatedLead.status
+                })
+                .eq('id', updatedLead.id);
+
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            console.error('Supabase update lead error, falling back:', error);
+            const leads = await AdminService.getLeads();
+            const newLeads = leads.map(l => l.id === updatedLead.id ? updatedLead : l);
+            AdminService._saveData('gt_leads', newLeads);
+            return newLeads;
+        }
     },
 
     async updateDeal(updatedDeal) {

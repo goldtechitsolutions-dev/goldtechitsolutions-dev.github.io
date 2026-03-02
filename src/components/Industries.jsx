@@ -32,9 +32,10 @@ const Industries = () => {
             color: '#fff'
         }}>
             <SEO
-                title="Industries We Serve"
-                description="GoldTech provides domain-specific expertise and specialized IT solutions across Healthcare, Finance, Retail, Manufacturing, and more."
+                title="Industries & Sectors"
+                description="GOLDTECH provides domain-specific expertise and specialized IT solutions across Healthcare, Finance, Retail, Manufacturing, and more."
                 url="industries"
+                keywords="Healthcare IT, Fintech Solutions, Retail Tech, Manufacturing IoT, Energy & Utilities"
             />
             {/* Dark Overlay */}
             <div style={{

@@ -47,6 +47,57 @@
     color: var(--color-blue-dark);
 }
 
+.mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #b38728;
+    cursor: pointer;
+    z-index: 1001;
+    padding: 8px;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(135deg, #001021 0%, #001F3F 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0);
+}
+
+.mobile-menu.open {
+    transform: translateX(0);
+}
+
+.mobile-nav-links {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    text-align: center;
+}
+
+.mobile-nav-links a {
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
 .nav-links {
     display: flex;
     gap: 2.5rem;
@@ -283,5 +334,17 @@
     .nav-links {
         display: none;
         /* simple hides for now, would need mobile menu logic */
+    }
+
+    .mobile-menu-btn {
+        display: block;
+    }
+
+    .brand-name {
+        font-size: 1.5rem;
+    }
+
+    .logo-img {
+        height: 35px;
     }
 }
