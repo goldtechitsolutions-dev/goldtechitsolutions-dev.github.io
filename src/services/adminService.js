@@ -1001,7 +1001,7 @@ const AdminService = {
                     email: query.email,
                     phone: query.phone,
                     message: query.message,
-                    date: new Date().toISOString().split('T')[0]
+                    date: query.date || new Date().toISOString().split('T')[0]
                 }])
                 .select();
 
