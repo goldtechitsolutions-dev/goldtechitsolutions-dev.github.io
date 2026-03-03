@@ -1000,7 +1000,8 @@ const AdminService = {
                     name: query.name,
                     email: query.email,
                     phone: query.phone,
-                    message: query.message
+                    message: query.message,
+                    date: new Date().toISOString().split('T')[0]
                 }])
                 .select();
 
@@ -1031,7 +1032,7 @@ const AdminService = {
     },
 
     // --- Meetings ---
-    getMeetings: async () => {
+    async getMeetings() {
         try {
             const { data, error } = await supabase
                 .from('gt_meetings')

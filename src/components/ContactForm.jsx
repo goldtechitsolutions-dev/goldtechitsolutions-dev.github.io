@@ -67,7 +67,7 @@ const ContactForm = () => {
         const fullPhone = `${data.get('countryCode')} ${phone}`;
 
         try {
-            // Save as Lead in AdminService
+            // Save as Lead and Query with individual tracking
             const newLead = {
                 name: data.get('name'),
                 email: data.get('email'),
@@ -87,17 +87,20 @@ const ContactForm = () => {
                 role: 'Visitor'
             };
 
-            // Parallel Submission for best mobile performance
-            await Promise.all([
-                AdminService.addLead(newLead),
-                AdminService.addQuery(newQuery)
-            ]);
+            console.log("Submitting sync data...", { name: newLead.name, email: newLead.email });
+
+            // Sequential submission to ensure we track completions better on mobile
+            const leadResult = await AdminService.addLead(newLead);
+            console.log("Lead submission result:", leadResult ? "Success" : "Stored Locally");
+
+            const queryResult = await AdminService.addQuery(newQuery);
+            console.log("Query submission result:", queryResult ? "Success" : "Stored Locally");
 
             form.reset();
             setStatus("SUCCESS");
             setTimeout(() => setStatus(""), 5000);
         } catch (error) {
-            console.error("Submission error:", error);
+            console.error("Submission fatal error:", error);
             setStatus("ERROR");
         }
     };
