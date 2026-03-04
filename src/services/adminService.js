@@ -977,7 +977,7 @@ const AdminService = {
 
 
     // --- Queries ---
-    getQueries: async () => {
+    async getQueries() {
         try {
             const { data, error } = await supabase
                 .from('queries')
@@ -985,10 +985,14 @@ const AdminService = {
                 .order('date', { ascending: false });
 
             if (error) throw error;
-            return data;
+            // Return empty list if no data, allowing UI to show "No queries" instead of mock data
+            return data || [];
         } catch (error) {
-            console.error('Supabase fetch queries error, falling back:', error);
-            return AdminService._getData('gt_queries', initialQueries);
+            console.error('Supabase fetch queries error:', error);
+            // Only fallback if we explicitly want to see demo data in dev, 
+            // but for real production issues, it's better to return empty or error.
+            // Keeping local storage as a secondary source if user has local data but DB is down.
+            return AdminService._getData('gt_queries', []);
         }
     },
 
@@ -1006,14 +1010,15 @@ const AdminService = {
                 .select();
 
             if (error) throw error;
-            return data[0];
+            return { data: data[0], error: null };
         } catch (error) {
-            console.error('Supabase error, falling back to local storage:', error);
+            console.error('Supabase add query error:', error);
+            // Save to local storage as safety, but return the error so UI knows it didn't hit DB
             const queries = await AdminService.getQueries();
-            const newQuery = { ...query, id: Date.now(), status: 'New', date: new Date().toISOString().split('T')[0] };
+            const newQuery = { ...query, id: Date.now(), status: 'New', date: new Date().toISOString().split('T')[0], _isLocal: true };
             const newQueries = [newQuery, ...queries];
             AdminService._saveData('gt_queries', newQueries);
-            return newQuery;
+            return { data: newQuery, error };
         }
     },
 
@@ -2462,25 +2467,34 @@ const AdminService = {
             let lds = ldsResponse.data || [];
             let qs = qsResponse.data || [];
 
-            // If Supabase returns empty arrays (e.g. RLS read blocks on Anon inserts), aggressively load from local storage
-            if (lds.length === 0) lds = AdminService._getData('gt_leads', initialLeads);
-            if (qs.length === 0) qs = AdminService._getData('gt_queries', initialQueries);
+            // Only load from local storage if Supabase returned absolutely nothing (not even an empty array, or if it's explicitly disconnected)
+            // But we avoid loading 'initialLeads' by default if we want real data visibility.
+            if (lds.length === 0) {
+                const localLads = AdminService._getData('gt_leads', []);
+                lds = localLads;
+            }
+            if (qs.length === 0) {
+                const localQs = AdminService._getData('gt_queries', []);
+                qs = localQs;
+            }
 
-            // Merge and sort safely handling undefined dates
+            // Merge and sort safely handling various date formats (Supabase snake_case vs JS camelCase)
             const combined = [...lds, ...qs].sort((a, b) => {
-                const timeA = new Date(a.date || a.createdAt || 0).getTime();
-                const timeB = new Date(b.date || b.createdAt || 0).getTime();
+                const dateA = a.date || a.created_at || a.createdAt || 0;
+                const dateB = b.date || b.created_at || b.createdAt || 0;
+                const timeA = new Date(dateA).getTime();
+                const timeB = new Date(dateB).getTime();
                 return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
             });
 
             return combined;
         } catch (error) {
-            console.error('Supabase fetch leads error, falling back:', error);
-            const localLds = AdminService._getData('gt_leads', initialLeads);
-            const localQs = AdminService._getData('gt_queries', initialQueries);
+            console.error('Supabase fetch leads error:', error);
+            const localLds = AdminService._getData('gt_leads', []);
+            const localQs = AdminService._getData('gt_queries', []);
             return [...localLds, ...localQs].sort((a, b) => {
-                const timeA = new Date(a.date || 0).getTime();
-                const timeB = new Date(b.date || 0).getTime();
+                const timeA = new Date(a.date || a.created_at || 0).getTime();
+                const timeB = new Date(b.date || b.created_at || 0).getTime();
                 return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
             });
         }
@@ -2640,14 +2654,15 @@ const AdminService = {
                 .select();
 
             if (error) throw error;
-            return data[0];
+            return { data: data[0], error: null };
         } catch (error) {
-            console.error('Supabase add lead error, falling back:', error);
+            console.error('Supabase add lead error:', error);
+            // Safety fallback to local storage
             const leads = await AdminService.getLeads();
-            const newLead = { ...lead, id: Date.now(), status: 'Open' };
+            const newLead = { ...lead, id: Date.now(), status: 'Open', date: new Date().toISOString().split('T')[0], _isLocal: true };
             const newLeads = [newLead, ...leads];
             AdminService._saveData('gt_leads', newLeads);
-            return newLead;
+            return { data: newLead, error };
         }
     },
 

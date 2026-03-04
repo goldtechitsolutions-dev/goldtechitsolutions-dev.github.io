@@ -46,7 +46,11 @@ const ContactForm = () => {
     }, []);
 
     const submitForm = async (ev) => {
-        ev.preventDefault();
+        // Immediately stop browser default behavior and propagation
+        if (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+        }
 
         const form = ev.target;
         const data = new FormData(form);
@@ -87,20 +91,36 @@ const ContactForm = () => {
                 role: 'Visitor'
             };
 
-            console.log("Submitting sync data...", { name: newLead.name, email: newLead.email });
+            console.log("Starting cross-device submission sync...", {
+                name: newLead.name,
+                email: newLead.email,
+                origin: window.location.origin,
+                timestamp: new Date().toISOString()
+            });
 
             // Sequential submission to ensure we track completions better on mobile
-            const leadResult = await AdminService.addLead(newLead);
-            console.log("Lead submission result:", leadResult ? "Success" : "Stored Locally");
+            // Use Promise.all if parallel is preferred, but sequential is safer for mobile link killing
+            const { data: leadData, error: leadError } = await AdminService.addLead(newLead);
+            console.log("Lead submission result:", leadError ? "Local Fallback" : "Database Success", { leadError });
 
-            const queryResult = await AdminService.addQuery(newQuery);
-            console.log("Query submission result:", queryResult ? "Success" : "Stored Locally");
+            const { data: queryData, error: queryError } = await AdminService.addQuery(newQuery);
+            console.log("Query submission result:", queryError ? "Local Fallback" : "Database Success", { queryError });
 
+            // Only proceed with UI reset after both settle
             form.reset();
-            setStatus("SUCCESS");
+
+            if (leadError || queryError) {
+                setStatus("SUCCESS_LOCAL"); // Custom status for partial success / local fallback
+            } else {
+                setStatus("SUCCESS");
+            }
             setTimeout(() => setStatus(""), 5000);
         } catch (error) {
-            console.error("Submission fatal error:", error);
+            console.error("Critical submission failure:", {
+                error: error.message,
+                stack: error.stack,
+                context: "ContactForm submission handler"
+            });
             setStatus("ERROR");
         }
     };
@@ -456,16 +476,16 @@ const ContactForm = () => {
                                 ></textarea>
                             </div>
 
-                            {status === "SUCCESS" ? (
+                            {(status === "SUCCESS" || status === "SUCCESS_LOCAL") ? (
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     style={{
                                         padding: '15px',
                                         borderRadius: '12px',
-                                        background: 'rgba(34, 197, 94, 0.1)',
-                                        border: '1px solid rgba(34, 197, 94, 0.3)',
-                                        color: '#4ade80',
+                                        background: status === "SUCCESS" ? 'rgba(34, 197, 94, 0.1)' : 'rgba(212, 175, 55, 0.1)',
+                                        border: `1px solid ${status === "SUCCESS" ? 'rgba(34, 197, 94, 0.3)' : 'rgba(212, 175, 55, 0.3)'}`,
+                                        color: status === "SUCCESS" ? '#4ade80' : '#D4AF37',
                                         textAlign: 'center',
                                         display: 'flex',
                                         alignItems: 'center',
@@ -473,7 +493,11 @@ const ContactForm = () => {
                                         gap: '10px'
                                     }}
                                 >
-                                    <Star size={20} /> Success! We'll contact you shortly.
+                                    {status === "SUCCESS" ? (
+                                        <><Check size={20} /> Success! We'll contact you shortly.</>
+                                    ) : (
+                                        <><Info size={20} /> Saved locally (Connecting...). We'll sync shortly.</>
+                                    )}
                                 </motion.div>
                             ) : (
                                 <button

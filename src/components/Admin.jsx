@@ -177,6 +177,7 @@ const Admin = ({ currentUser }) => {
     const [searchResults, setSearchResults] = useState([]);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [copiedId, setCopiedId] = useState(null);
+    const [dbStatus, setDbStatus] = useState('Checking...');
 
     const [serviceStatus, setServiceStatus] = useState([]);
     const [systemLogs, setSystemLogs] = useState([]);
@@ -311,6 +312,9 @@ const Admin = ({ currentUser }) => {
             setChatLogs(cLogs_fetched || []);
             setChatStats(cStats_fetched || null);
 
+            // Basic heuristic for DB status
+            setDbStatus('Healthy');
+
             setStats([
                 { title: 'Total Visits', value: '12,450', change: '+12%', icon: <Users size={24} color="#004687" /> },
                 { title: 'Active Leads', value: ((lds?.length || 0) + (qs?.length || 0)).toString(), change: 'Hot', icon: <MessageSquare size={24} color="#f59e0b" /> },
@@ -320,8 +324,7 @@ const Admin = ({ currentUser }) => {
             ]);
         } catch (error) {
             console.error("Admin.jsx: Error refreshing data", error);
-            // Optionally set an error state to show in UI
-            // setGlobalError("Failed to refresh data. Some information may be outdated.");
+            setDbStatus('Disconnected');
         } finally {
             setIsRefreshing(false);
         }
@@ -1026,6 +1029,21 @@ const Admin = ({ currentUser }) => {
                             <Bell size={22} color="#94a3b8" />
                             <div style={{ position: 'absolute', top: '-2px', right: '-2px', width: '8px', height: '8px', background: '#D4AF37', borderRadius: '50%', border: '2px solid #000B18' }}></div>
                         </div>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            background: dbStatus === 'Healthy' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                            padding: '8px 12px',
+                            borderRadius: '10px',
+                            border: `1px solid ${dbStatus === 'Healthy' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`,
+                            fontSize: '0.75rem',
+                            fontWeight: '800',
+                            color: dbStatus === 'Healthy' ? '#4ade80' : '#ef4444'
+                        }}>
+                            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor', boxShadow: '0 0 8px currentColor' }}></div>
+                            {dbStatus.toUpperCase()}
+                        </div>
                         <button onClick={refreshData} disabled={isRefreshing} style={{
                             background: 'rgba(212, 175, 55, 0.1)',
                             border: '1px solid rgba(212, 175, 55, 0.2)',
@@ -1618,7 +1636,14 @@ const Admin = ({ currentUser }) => {
                                     <tbody>
                                         {queries.map((q) => (
                                             <tr key={q.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
-                                                <td style={{ ...tdStyle, fontWeight: '700', color: '#fff' }}>{q.name}</td>
+                                                <td style={{ ...tdStyle, fontWeight: '700', color: '#fff' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        {q.name}
+                                                        {q._isLocal && (
+                                                            <span style={{ fontSize: '0.65rem', background: 'rgba(212, 175, 55, 0.15)', color: '#D4AF37', padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(212, 175, 55, 0.3)' }}>LOCAL ONLY</span>
+                                                        )}
+                                                    </div>
+                                                </td>
                                                 <td style={{ ...tdStyle, color: '#cbd5e1', fontSize: '0.85rem' }}>{q.message}</td>
                                                 <td style={tdStyle}>{q.email}</td>
                                                 <td style={{ ...tdStyle, color: '#94a3b8', fontSize: '0.8rem' }}>{q.date}</td>
@@ -1660,7 +1685,12 @@ const Admin = ({ currentUser }) => {
                                     {leads.map((q) => (
                                         <tr key={q.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
                                             <td style={tdStyle}>
-                                                <div style={{ fontWeight: '700', color: '#fff' }}>{q.name}</div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <div style={{ fontWeight: '700', color: '#fff' }}>{q.name}</div>
+                                                    {q._isLocal && (
+                                                        <span style={{ fontSize: '0.65rem', background: 'rgba(212, 175, 55, 0.15)', color: '#D4AF37', padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(212, 175, 55, 0.3)' }}>LOCAL ONLY</span>
+                                                    )}
+                                                </div>
                                             </td>
                                             <td style={tdStyle}>
                                                 <div style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'flex', flexDirection: 'column', gap: '4px' }}>
