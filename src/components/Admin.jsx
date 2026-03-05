@@ -2301,7 +2301,15 @@ const Admin = ({ currentUser }) => {
                                     <select
                                         value={meetingFilters.status}
                                         onChange={(e) => setMeetingFilters({ ...meetingFilters, status: e.target.value })}
-                                        style={{ ...selectStyle, padding: '8px 12px', fontSize: '0.8rem' }}
+                                        style={{
+                                            padding: '8px 12px',
+                                            borderRadius: '8px',
+                                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                                            background: 'rgba(0,0,0,0.2)',
+                                            color: '#fff',
+                                            fontSize: '0.8rem',
+                                            cursor: 'pointer'
+                                        }}
                                     >
                                         <option value="All">All Statuses</option>
                                         <option value="Scheduled">Scheduled</option>
@@ -2313,7 +2321,15 @@ const Admin = ({ currentUser }) => {
                                     <select
                                         value={meetingSort.direction}
                                         onChange={(e) => setMeetingSort({ ...meetingSort, direction: e.target.value })}
-                                        style={{ ...selectStyle, padding: '8px 12px', fontSize: '0.8rem' }}
+                                        style={{
+                                            padding: '8px 12px',
+                                            borderRadius: '8px',
+                                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                                            background: 'rgba(0,0,0,0.2)',
+                                            color: '#fff',
+                                            fontSize: '0.8rem',
+                                            cursor: 'pointer'
+                                        }}
                                     >
                                         <option value="desc">Newest First</option>
                                         <option value="asc">Oldest First</option>
