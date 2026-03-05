@@ -237,8 +237,37 @@ const Admin = ({ currentUser }) => {
         clients: false
     });
 
-    // Chat Filter State
-    const [chatFilter, setChatFilter] = useState('All');
+    // Chat Filter & Sort State
+    const [chatFilters, setChatFilters] = useState({ status: 'All', search: '' });
+    const [chatSort, setChatSort] = useState({ key: 'date', direction: 'desc' });
+
+    const filteredChatLogs = useMemo(() => {
+        let result = [...chatLogs];
+
+        if (chatFilters.status !== 'All') {
+            result = result.filter(log => log.status === chatFilters.status);
+        }
+
+        if (chatFilters.search) {
+            const term = chatFilters.search.toLowerCase();
+            result = result.filter(log =>
+                (log.user && log.user.toLowerCase().includes(term)) ||
+                (log.id && String(log.id).includes(term)) ||
+                (log.formData?.email && log.formData.email.toLowerCase().includes(term))
+            );
+        }
+
+        result.sort((a, b) => {
+            if (chatSort.key === 'date') {
+                const dateA = new Date(`${a.date} ${a.time || ''}`).getTime();
+                const dateB = new Date(`${b.date} ${b.time || ''}`).getTime();
+                return chatSort.direction === 'asc' ? dateA - dateB : dateB - dateA;
+            }
+            return 0; // Default fallback
+        });
+
+        return result;
+    }, [chatLogs, chatFilters, chatSort]);
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -3004,9 +3033,25 @@ const Admin = ({ currentUser }) => {
                                 <div style={{ padding: '20px 30px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                     <h3 style={{ margin: 0, fontSize: '1.2rem' }}>Recent Chat Sessions</h3>
                                     <div style={{ display: 'flex', gap: '10px' }}>
+                                        <input
+                                            type="text"
+                                            placeholder="Search chats..."
+                                            value={chatFilters.search}
+                                            onChange={(e) => setChatFilters({ ...chatFilters, search: e.target.value })}
+                                            style={{
+                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                color: '#fff',
+                                                padding: '8px 12px',
+                                                borderRadius: '8px',
+                                                fontSize: '0.9rem',
+                                                outline: 'none',
+                                                width: '150px'
+                                            }}
+                                        />
                                         <select
-                                            value={chatFilter}
-                                            onChange={(e) => setChatFilter(e.target.value)}
+                                            value={chatFilters.status}
+                                            onChange={(e) => setChatFilters({ ...chatFilters, status: e.target.value })}
                                             style={{
                                                 background: 'rgba(255, 255, 255, 0.05)',
                                                 border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -3018,8 +3063,31 @@ const Admin = ({ currentUser }) => {
                                                 outline: 'none'
                                             }}
                                         >
-                                            <option value="All" style={{ background: '#1e293b' }}>All Sessions</option>
+                                            <option value="All" style={{ background: '#1e293b' }}>All Status</option>
                                             <option value="New" style={{ background: '#1e293b' }}>New</option>
+                                            <option value="Active" style={{ background: '#1e293b' }}>Active</option>
+                                            <option value="Ended" style={{ background: '#1e293b' }}>Ended</option>
+                                            <option value="Closed" style={{ background: '#1e293b' }}>Closed</option>
+                                        </select>
+                                        <select
+                                            value={`${chatSort.key}_${chatSort.direction}`}
+                                            onChange={(e) => {
+                                                const [key, direction] = e.target.value.split('_');
+                                                setChatSort({ key, direction });
+                                            }}
+                                            style={{
+                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                color: '#fff',
+                                                padding: '8px 12px',
+                                                borderRadius: '8px',
+                                                cursor: 'pointer',
+                                                fontSize: '0.9rem',
+                                                outline: 'none'
+                                            }}
+                                        >
+                                            <option value="date_desc" style={{ background: '#1e293b' }}>Newest First</option>
+                                            <option value="date_asc" style={{ background: '#1e293b' }}>Oldest First</option>
                                         </select>
                                         <button
                                             onClick={refreshData}
@@ -3053,8 +3121,8 @@ const Admin = ({ currentUser }) => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {chatLogs.filter(log => chatFilter === 'All' || log.status === chatFilter).length > 0 ? (
-                                                chatLogs.filter(log => chatFilter === 'All' || log.status === chatFilter).map((log) => (
+                                            {filteredChatLogs.length > 0 ? (
+                                                filteredChatLogs.map((log) => (
                                                     <tr key={log.id} className="premium-row" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)', transition: 'all 0.3s ease' }}>
                                                         <td style={{ padding: '16px 30px' }}>
                                                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#D4AF37', fontWeight: '600', fontSize: '0.85rem' }}>
