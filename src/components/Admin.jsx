@@ -237,6 +237,9 @@ const Admin = ({ currentUser }) => {
         clients: false
     });
 
+    // Chat Filter State
+    const [chatFilter, setChatFilter] = useState('All');
+
     useEffect(() => {
         if (isLoggedIn) {
             refreshData();
@@ -3000,23 +3003,42 @@ const Admin = ({ currentUser }) => {
                             <div style={{ background: 'rgba(255, 255, 255, 0.03)', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.05)', overflow: 'hidden' }}>
                                 <div style={{ padding: '20px 30px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                     <h3 style={{ margin: 0, fontSize: '1.2rem' }}>Recent Chat Sessions</h3>
-                                    <button
-                                        onClick={refreshData}
-                                        style={{
-                                            background: 'rgba(255, 255, 255, 0.05)',
-                                            border: 'none',
-                                            color: '#fff',
-                                            padding: '8px 12px',
-                                            borderRadius: '8px',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '6px',
-                                            fontSize: '0.9rem'
-                                        }}
-                                    >
-                                        <RefreshCw size={16} className={isRefreshing ? 'spin' : ''} /> Refresh
-                                    </button>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <select
+                                            value={chatFilter}
+                                            onChange={(e) => setChatFilter(e.target.value)}
+                                            style={{
+                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                color: '#fff',
+                                                padding: '8px 12px',
+                                                borderRadius: '8px',
+                                                cursor: 'pointer',
+                                                fontSize: '0.9rem',
+                                                outline: 'none'
+                                            }}
+                                        >
+                                            <option value="All" style={{ background: '#1e293b' }}>All Sessions</option>
+                                            <option value="New" style={{ background: '#1e293b' }}>New</option>
+                                        </select>
+                                        <button
+                                            onClick={refreshData}
+                                            style={{
+                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                border: 'none',
+                                                color: '#fff',
+                                                padding: '8px 12px',
+                                                borderRadius: '8px',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '6px',
+                                                fontSize: '0.9rem'
+                                            }}
+                                        >
+                                            <RefreshCw size={16} className={isRefreshing ? 'spin' : ''} /> Refresh
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div style={{ overflowX: 'auto', paddingBottom: '10px' }} className="custom-scrollbar">
@@ -3031,8 +3053,8 @@ const Admin = ({ currentUser }) => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {chatLogs.length > 0 ? (
-                                                chatLogs.map((log) => (
+                                            {chatLogs.filter(log => chatFilter === 'All' || log.status === chatFilter).length > 0 ? (
+                                                chatLogs.filter(log => chatFilter === 'All' || log.status === chatFilter).map((log) => (
                                                     <tr key={log.id} className="premium-row" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)', transition: 'all 0.3s ease' }}>
                                                         <td style={{ padding: '16px 30px' }}>
                                                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#D4AF37', fontWeight: '600', fontSize: '0.85rem' }}>
