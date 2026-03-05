@@ -128,6 +128,14 @@ const Admin = ({ currentUser }) => {
     });
     const [recruitmentSort, setRecruitmentSort] = useState({ key: 'appliedDate', direction: 'desc' });
 
+    // Meetings Filter & Sort State
+    const [meetingFilters, setMeetingFilters] = useState({
+        search: '',
+        status: 'All'
+    });
+    const [meetingSort, setMeetingSort] = useState({ key: 'date', direction: 'desc' });
+
+
     const processedCandidates = useMemo(() => {
         let result = [...candidates];
 
@@ -268,6 +276,41 @@ const Admin = ({ currentUser }) => {
 
         return result;
     }, [chatLogs, chatFilters, chatSort]);
+
+    const filteredMeetings = useMemo(() => {
+        let result = [...meetings];
+
+        // Filtering
+        if (meetingFilters.search) {
+            const query = meetingFilters.search.toLowerCase();
+            result = result.filter(m =>
+                (m.name && m.name.toLowerCase().includes(query)) ||
+                (m.email && m.email.toLowerCase().includes(query)) ||
+                (m.topic && m.topic.toLowerCase().includes(query))
+            );
+        }
+
+        if (meetingFilters.status !== 'All') {
+            result = result.filter(m => m.status === meetingFilters.status);
+        }
+
+        // Sorting
+        result.sort((a, b) => {
+            let valA, valB;
+            if (meetingSort.key === 'date') {
+                valA = new Date(`${a.date || '1970-01-01'} ${a.time || '00:00:00'}`);
+                valB = new Date(`${b.date || '1970-01-01'} ${b.time || '00:00:00'}`);
+            } else {
+                valA = a[meetingSort.key]?.toString().toLowerCase() || '';
+                valB = b[meetingSort.key]?.toString().toLowerCase() || '';
+            }
+            if (valA < valB) return meetingSort.direction === 'asc' ? -1 : 1;
+            if (valA > valB) return meetingSort.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        return result;
+    }, [meetings, meetingFilters, meetingSort]);
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -2233,28 +2276,70 @@ const Admin = ({ currentUser }) => {
                 {
                     activeTab === 'meetings' && (
                         <div style={cardStyle}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
                                 <h3 style={{ margin: 0, color: '#fff' }}>Scheduled Meetings</h3>
-                                <button
-                                    onClick={refreshData}
-                                    disabled={isRefreshing}
-                                    style={{
-                                        background: 'rgba(212, 175, 55, 0.1)',
-                                        border: '1px solid rgba(212, 175, 55, 0.3)',
-                                        color: '#D4AF37',
-                                        padding: '8px 16px',
-                                        borderRadius: '8px',
-                                        cursor: isRefreshing ? 'not-allowed' : 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        fontSize: '0.8rem',
-                                        fontWeight: '700'
-                                    }}
-                                >
-                                    <RefreshCw size={14} className={isRefreshing ? "spin-icon" : ""} style={isRefreshing ? { animation: 'spin 1s linear infinite' } : {}} />
-                                    {isRefreshing ? 'REFRESHING...' : 'REFRESH DATA'}
-                                </button>
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                    <div style={{ position: 'relative' }}>
+                                        <input
+                                            type="text"
+                                            placeholder="Search meetings..."
+                                            value={meetingFilters.search}
+                                            onChange={(e) => setMeetingFilters({ ...meetingFilters, search: e.target.value })}
+                                            style={{
+                                                padding: '8px 12px 8px 30px',
+                                                borderRadius: '8px',
+                                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                background: 'rgba(0,0,0,0.2)',
+                                                color: '#fff',
+                                                fontSize: '0.8rem',
+                                                width: '200px'
+                                            }}
+                                        />
+                                        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                                    </div>
+
+                                    <select
+                                        value={meetingFilters.status}
+                                        onChange={(e) => setMeetingFilters({ ...meetingFilters, status: e.target.value })}
+                                        style={{ ...selectStyle, padding: '8px 12px', fontSize: '0.8rem' }}
+                                    >
+                                        <option value="All">All Statuses</option>
+                                        <option value="Scheduled">Scheduled</option>
+                                        <option value="Completed">Completed</option>
+                                        <option value="Cancelled">Cancelled</option>
+                                        <option value="Pending">Pending</option>
+                                    </select>
+
+                                    <select
+                                        value={meetingSort.direction}
+                                        onChange={(e) => setMeetingSort({ ...meetingSort, direction: e.target.value })}
+                                        style={{ ...selectStyle, padding: '8px 12px', fontSize: '0.8rem' }}
+                                    >
+                                        <option value="desc">Newest First</option>
+                                        <option value="asc">Oldest First</option>
+                                    </select>
+
+                                    <button
+                                        onClick={refreshData}
+                                        disabled={isRefreshing}
+                                        style={{
+                                            background: 'rgba(212, 175, 55, 0.1)',
+                                            border: '1px solid rgba(212, 175, 55, 0.3)',
+                                            color: '#D4AF37',
+                                            padding: '8px 16px',
+                                            borderRadius: '8px',
+                                            cursor: isRefreshing ? 'not-allowed' : 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            fontSize: '0.8rem',
+                                            fontWeight: '700'
+                                        }}
+                                    >
+                                        <RefreshCw size={14} className={isRefreshing ? "spin-icon" : ""} style={isRefreshing ? { animation: 'spin 1s linear infinite' } : {}} />
+                                        {isRefreshing ? 'REFRESHING...' : 'REFRESH DATA'}
+                                    </button>
+                                </div>
                             </div>
                             <div style={{ overflowX: 'auto', paddingBottom: '10px' }} className="custom-scrollbar">
                                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -2270,42 +2355,50 @@ const Admin = ({ currentUser }) => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {meetings.map((m) => (
-                                            <tr key={m.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
-                                                <td style={{ ...tdStyle, fontWeight: '800', color: '#fff' }}>{m.name}</td>
-                                                <td style={tdStyle}>
-                                                    <div style={{ fontSize: '0.85rem' }}>{m.email}</div>
-                                                    <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{m.mobile || 'N/A'}</div>
-                                                </td>
-                                                <td style={tdStyle}>{m.topic}</td>
-                                                <td style={tdStyle}>{m.date} at {m.time}</td>
-                                                <td style={tdStyle}>
-                                                    <span style={statusBadge(m.status)}>{m.status}</span>
-                                                </td>
-                                                <td style={tdStyle}>
-                                                    {m.link ? (
-                                                        <a
-                                                            href={m.link.startsWith('http') ? m.link : `https://${m.link}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            style={{ color: '#D4AF37', textDecoration: 'none', fontWeight: '500' }}
+                                        {filteredMeetings.length > 0 ? (
+                                            filteredMeetings.map((m) => (
+                                                <tr key={m.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
+                                                    <td style={{ ...tdStyle, fontWeight: '800', color: '#fff' }}>{m.name}</td>
+                                                    <td style={tdStyle}>
+                                                        <div style={{ fontSize: '0.85rem' }}>{m.email}</div>
+                                                        <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{m.mobile || 'N/A'}</div>
+                                                    </td>
+                                                    <td style={tdStyle}>{m.topic}</td>
+                                                    <td style={tdStyle}>{m.date} at {m.time}</td>
+                                                    <td style={tdStyle}>
+                                                        <span style={statusBadge(m.status)}>{m.status}</span>
+                                                    </td>
+                                                    <td style={tdStyle}>
+                                                        {m.link ? (
+                                                            <a
+                                                                href={m.link.startsWith('http') ? m.link : `https://${m.link}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                style={{ color: '#D4AF37', textDecoration: 'none', fontWeight: '500' }}
+                                                            >
+                                                                {m.link}
+                                                            </a>
+                                                        ) : (
+                                                            <span style={{ color: '#94a3b8' }}>No Link</span>
+                                                        )}
+                                                    </td>
+                                                    <td style={{ ...tdStyle, textAlign: 'right' }}>
+                                                        <button
+                                                            onClick={() => handleViewItem(m, 'meeting')}
+                                                            style={{ color: '#000', background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)', border: 'none', cursor: 'pointer', fontWeight: '800', padding: '8px 16px', borderRadius: '8px', fontSize: '0.75rem' }}
                                                         >
-                                                            {m.link}
-                                                        </a>
-                                                    ) : (
-                                                        <span style={{ color: '#94a3b8' }}>No Link</span>
-                                                    )}
-                                                </td>
-                                                <td style={{ ...tdStyle, textAlign: 'right' }}>
-                                                    <button
-                                                        onClick={() => handleViewItem(m, 'meeting')}
-                                                        style={{ color: '#000', background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)', border: 'none', cursor: 'pointer', fontWeight: '800', padding: '8px 16px', borderRadius: '8px', fontSize: '0.75rem' }}
-                                                    >
-                                                        DETAILS
-                                                    </button>
+                                                            DETAILS
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="7" style={{ ...tdStyle, textAlign: 'center', color: '#94a3b8', padding: '40px' }}>
+                                                    No meetings found matching your criteria.
                                                 </td>
                                             </tr>
-                                        ))}
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
