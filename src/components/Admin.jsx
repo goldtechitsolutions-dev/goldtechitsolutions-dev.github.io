@@ -284,9 +284,9 @@ const Admin = ({ currentUser }) => {
         if (meetingFilters.search) {
             const query = meetingFilters.search.toLowerCase();
             result = result.filter(m =>
-                (m.name && m.name.toLowerCase().includes(query)) ||
-                (m.email && m.email.toLowerCase().includes(query)) ||
-                (m.topic && m.topic.toLowerCase().includes(query))
+                (m.name && typeof m.name === 'string' && m.name.toLowerCase().includes(query)) ||
+                (m.email && typeof m.email === 'string' && m.email.toLowerCase().includes(query)) ||
+                (m.topic && typeof m.topic === 'string' && m.topic.toLowerCase().includes(query))
             );
         }
 
@@ -296,17 +296,17 @@ const Admin = ({ currentUser }) => {
 
         // Sorting
         result.sort((a, b) => {
-            let valA, valB;
             if (meetingSort.key === 'date') {
-                valA = new Date(`${a.date || '1970-01-01'} ${a.time || '00:00:00'}`);
-                valB = new Date(`${b.date || '1970-01-01'} ${b.time || '00:00:00'}`);
+                const dateA = new Date(`${a.date || '1970-01-01'} ${a.time || '00:00:00'}`).getTime();
+                const dateB = new Date(`${b.date || '1970-01-01'} ${b.time || '00:00:00'}`).getTime();
+                return meetingSort.direction === 'asc' ? dateA - dateB : dateB - dateA;
             } else {
-                valA = a[meetingSort.key]?.toString().toLowerCase() || '';
-                valB = b[meetingSort.key]?.toString().toLowerCase() || '';
+                const valA = a[meetingSort.key]?.toString().toLowerCase() || '';
+                const valB = b[meetingSort.key]?.toString().toLowerCase() || '';
+                if (valA < valB) return meetingSort.direction === 'asc' ? -1 : 1;
+                if (valA > valB) return meetingSort.direction === 'asc' ? 1 : -1;
+                return 0;
             }
-            if (valA < valB) return meetingSort.direction === 'asc' ? -1 : 1;
-            if (valA > valB) return meetingSort.direction === 'asc' ? 1 : -1;
-            return 0;
         });
 
         return result;
