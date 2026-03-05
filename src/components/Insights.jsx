@@ -19,6 +19,12 @@ const getYouTubeEmbedUrl = (url) => {
     return url;
 };
 
+const stripHtml = (html) => {
+    if (!html) return '';
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || "";
+};
+
 const Insights = () => {
     const [blogs, setBlogs] = useState([]);
     const [videos, setVideos] = useState([]);
@@ -49,7 +55,7 @@ const Insights = () => {
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundAttachment: 'fixed',
-            padding: '100px 0'
+            padding: 'clamp(60px, 10vw, 100px) 0'
         }}>
             <SEO
                 title="Insights & Media | GoldTech IT Solutions"
@@ -81,7 +87,7 @@ const Insights = () => {
                 ) : (
                     <>
                         {/* Blogs Grid */}
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '30px', marginBottom: '80px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: 'clamp(20px, 4vw, 30px)', marginBottom: '80px' }}>
                             {blogs.map((item, i) => {
                                 const slug = item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
                                 return (
@@ -90,7 +96,7 @@ const Insights = () => {
                                         className="service-card"
                                         whileHover={{ y: -10 }}
                                         style={{
-                                            padding: '40px',
+                                            padding: 'clamp(20px, 5vw, 40px)',
                                             display: 'flex',
                                             flexDirection: 'column',
                                             justifyContent: 'space-between',
@@ -118,9 +124,9 @@ const Insights = () => {
                                                     <Calendar size={14} /> {item.date}
                                                 </span>
                                             </div>
-                                            <h3 style={{ fontSize: '1.6rem', margin: '0 0 15px 0', color: '#fff', lineHeight: '1.3' }}>{item.title}</h3>
+                                            <h3 style={{ fontSize: 'clamp(1.2rem, 4vw, 1.6rem)', margin: '0 0 15px 0', color: '#fff', lineHeight: '1.3' }}>{item.title}</h3>
                                             <p style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '20px', display: '-webkit-box', WebkitLineClamp: '3', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                                                {item.content}
+                                                {stripHtml(item.content)}
                                             </p>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
@@ -156,7 +162,7 @@ const Insights = () => {
                             <p style={{ color: '#e2e8f0', fontWeight: '500' }}>Explore our solutions and corporate updates through video.</p>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '30px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 'clamp(20px, 4vw, 30px)' }}>
                             {videos.map((video, i) => (
                                 <motion.div
                                     key={video.id || i}
