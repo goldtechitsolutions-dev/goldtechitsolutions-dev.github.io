@@ -2029,11 +2029,13 @@ const Admin = ({ currentUser }) => {
                                     }}
                                 >
                                     <option value="All">All Statuses</option>
-                                    <option value="New">New / Priority Target</option>
-                                    <option value="Active">Active</option>
+                                    <option value="New">New</option>
+                                    <option value="Open">Open</option>
                                     <option value="Closed">Closed</option>
-                                    <option value="Converted">Converted</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Hold">Hold</option>
                                 </select>
+
 
                                 <select
                                     value={leadSort.direction}
@@ -2111,7 +2113,28 @@ const Admin = ({ currentUser }) => {
                                                 <td style={tdStyle}>
                                                     <span style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>{q.message || q.subject}</span>
                                                 </td>
-                                                <td style={tdStyle}><span style={statusBadge(q.status)}>{q.status === 'New' ? 'Priority Target' : q.status}</span></td>
+                                                <td style={tdStyle}>
+                                                    <select
+                                                        value={q.status}
+                                                        onChange={(e) => handleStatusUpdate(q.id, e.target.value, 'query')}
+                                                        style={{
+                                                            ...statusBadge(q.status),
+                                                            border: `1px solid ${statusBadge(q.status).borderColor || 'rgba(255,255,255,0.1)'}`,
+                                                            cursor: 'pointer',
+                                                            outline: 'none',
+                                                            appearance: 'none',
+                                                            WebkitAppearance: 'none',
+                                                            textAlign: 'center',
+                                                            width: 'fit-content'
+                                                        }}
+                                                    >
+                                                        <option value="New" style={{ background: '#1a1a1a', color: '#fff' }}>New</option>
+                                                        <option value="Open" style={{ background: '#1a1a1a', color: '#fff' }}>Open</option>
+                                                        <option value="Closed" style={{ background: '#1a1a1a', color: '#fff' }}>Closed</option>
+                                                        <option value="Pending" style={{ background: '#1a1a1a', color: '#fff' }}>Pending</option>
+                                                        <option value="Hold" style={{ background: '#1a1a1a', color: '#fff' }}>Hold</option>
+                                                    </select>
+                                                </td>
                                                 <td style={{ ...tdStyle, color: '#94a3b8', fontSize: '0.85rem' }}>{q.date}</td>
                                                 <td style={{ ...tdStyle, textAlign: 'right' }}>
                                                     <button onClick={() => handleViewItem(q, 'query')} style={{ color: '#000', background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)', border: 'none', cursor: 'pointer', fontWeight: '800', padding: '8px 16px', borderRadius: '8px', fontSize: '0.75rem' }}>Initiate Contact</button>
@@ -4691,15 +4714,11 @@ const Admin = ({ currentUser }) => {
                                                                     )}
                                                                     {modalType === 'query' && (
                                                                         <>
-                                                                            <option value="New" style={{ background: '#1a1a1a', color: '#fff' }}>
-                                                                                {selectedItem?.message?.includes('[SECURITY]') ? 'New Request' : 'New Lead'}
-                                                                            </option>
-                                                                            <option value="Read" style={{ background: '#1a1a1a', color: '#fff' }}>In Progress</option>
-                                                                            <option value="On Hold" style={{ background: '#1a1a1a', color: '#fff' }}>On Hold</option>
-                                                                            <option value="Replied" style={{ background: '#1a1a1a', color: '#fff' }}>
-                                                                                {selectedItem?.message?.includes('[SECURITY]') ? 'Resolved' : 'Completed'}
-                                                                            </option>
-                                                                            <option value="Discarded" style={{ background: '#1a1a1a', color: '#fff' }}>Dismissed</option>
+                                                                            <option value="New" style={{ background: '#1a1a1a', color: '#fff' }}>New</option>
+                                                                            <option value="Open" style={{ background: '#1a1a1a', color: '#fff' }}>Open</option>
+                                                                            <option value="Closed" style={{ background: '#1a1a1a', color: '#fff' }}>Closed</option>
+                                                                            <option value="Pending" style={{ background: '#1a1a1a', color: '#fff' }}>Pending</option>
+                                                                            <option value="Hold" style={{ background: '#1a1a1a', color: '#fff' }}>Hold</option>
                                                                         </>
                                                                     )}
                                                                     {modalType === 'meeting' && (
@@ -6119,10 +6138,15 @@ const statusBadge = (status) => {
         color = '#D4AF37';
         border = 'rgba(212, 175, 55, 0.2)';
     }
-    if (status === 'under process') {
+    if (status === 'under process' || status === 'Open' || status === 'open') {
         bg = 'rgba(59, 130, 246, 0.1)';
         color = '#3b82f6';
         border = 'rgba(59, 130, 246, 0.2)';
+    }
+    if (status === 'Hold' || status === 'hold') {
+        bg = 'rgba(124, 58, 237, 0.1)';
+        color = '#7c3aed';
+        border = 'rgba(124, 58, 237, 0.2)';
     }
     if (status && typeof status === 'string' && (status.includes('Service Inquiry') || status === 'Reviewed' || status === 'Replied' || status === 'Completed' || status === 'Confirmed' || status === 'hired' || status.includes('interview'))) {
         bg = 'rgba(16, 185, 129, 0.1)';
@@ -6130,11 +6154,12 @@ const statusBadge = (status) => {
         border = 'rgba(16, 185, 129, 0.2)';
     }
 
-    if (status === 'Rejected' || status === 'rejected') {
+    if (status === 'Rejected' || status === 'rejected' || status === 'Closed' || status === 'closed') {
         bg = 'rgba(225, 29, 72, 0.1)';
         color = '#f43f5e';
         border = 'rgba(225, 29, 72, 0.2)';
     }
+
 
     return {
         padding: '6px 14px',
