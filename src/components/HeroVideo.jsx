@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import AdminService from '../services/adminService';
 
 // Import Videos
 import aiVideo from '../assets/Artificial_Intelligence_AI_Stock_Footage_Video_1440P (1).mp4';
@@ -13,75 +14,39 @@ import p4Video from '../assets/GT6.mp4';
 import heroPoster from '../assets/hero-poster.jpg';
 import fallbackImage from '../assets/modern-office.png';
 
-const videoSlides = [
-    {
-        id: 0,
-        videoSrc: aiVideo,
-        poster: heroPoster,
-        title: "AI and GOLDTECH",
-        subtitle: "Harnessing the power of Artificial Intelligence to redefine possibilities. GoldTech leads the way in intelligent automation and data-driven innovation.",
-        cta: "Discover AI Solutions",
-        duration: 9000
-    },
-    {
-        id: 1,
-        videoSrc: smartCityVideo,
-        title: "Next-Gen Cloud Solutions",
-        subtitle: "Transform your business with scalable, secure, and high-performance cloud infrastructure designed for the future.",
-        cta: "Explore Cloud Tech",
-        duration: 10000
-    },
-    {
-        id: 2,
-        videoSrc: p1Video,
-        title: "Innovating for Tomorrow",
-        subtitle: "GoldTech IT Solutions Private Limited: Where vision meets execution. We build the digital future.",
-        cta: "Discover Our Vision",
-        duration: 10000
-    },
-    {
-        id: 3,
-        videoSrc: p2Video,
-        title: "Expertise That Matters",
-        subtitle: "From Cloud Architecture to AI-driven insights, our team delivers excellence.",
-        cta: "View Expertise",
-        duration: 10000
-    },
-    {
-        id: 4,
-        videoSrc: p3Video,
-        title: "Global Reach, Local Impact",
-        subtitle: "Empowering businesses worldwide with scalable, secure, and robust IT solutions.",
-        cta: "See Our Impact",
-        duration: 10000
-    },
-    {
-        id: 5,
-        videoSrc: p4Video,
-        title: "Partner with GoldTech",
-        subtitle: "Let's collaborate to accelerate your digital transformation journey.",
-        cta: "Start Your Project",
-        duration: 12000
-    }
-];
+const localVideos = [aiVideo, smartCityVideo, p1Video, p2Video, p3Video, p4Video];
+
+const isVideoUrl = (url) => {
+    if (!url) return false;
+    const cleanUrl = url.split('?')[0].split('#')[0].toLowerCase();
+    const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.m4v', '.3gp'];
+    return videoExtensions.some(ext => cleanUrl.endsWith(ext)) || url.includes('video');
+};
 
 const HeroVideo = () => {
     const [current, setCurrent] = useState(0);
+    const [slides, setSlides] = useState(() => {
+        const info = AdminService.getCompanyInfoSync();
+        return (info.heroSlides || []).filter(Boolean);
+    });
     const videoRefs = React.useRef([]);
 
     // Auto-advance slide with variable duration
     useEffect(() => {
-        const slideDuration = videoSlides[current].duration || 10000; // Default to 10s if not specified
+        if (!slides || slides.length === 0) return;
+        const currentSlide = slides[current] || slides[0];
+        const slideDuration = currentSlide.duration || 10000; // Default to 10s if not specified
 
         const timer = setTimeout(() => {
-            setCurrent((prev) => (prev + 1) % videoSlides.length);
+            setCurrent((prev) => (prev + 1) % slides.length);
         }, slideDuration);
 
         return () => clearTimeout(timer);
-    }, [current]);
+    }, [current, slides]);
 
     // Reset and play video when it becomes active
     useEffect(() => {
+        if (!slides || slides.length === 0) return;
         videoRefs.current.forEach((vid, index) => {
             if (vid) {
                 if (index === current) {
@@ -95,10 +60,35 @@ const HeroVideo = () => {
                 }
             }
         });
-    }, [current]);
+    }, [current, slides]);
 
-    const nextSlide = () => setCurrent((prev) => (prev + 1) % videoSlides.length);
-    const prevSlide = () => setCurrent((prev) => (prev - 1 + videoSlides.length) % videoSlides.length);
+    useEffect(() => {
+        const fetchSlides = async () => {
+            const data = await AdminService.getCompanyInfo();
+            if (data && data.heroSlides) {
+                setSlides(data.heroSlides.filter(Boolean));
+            }
+        };
+        fetchSlides();
+
+        window.addEventListener('gt_data_update', fetchSlides);
+        return () => window.removeEventListener('gt_data_update', fetchSlides);
+    }, []);
+
+    const nextSlide = () => {
+        if (!slides || slides.length === 0) return;
+        setCurrent((prev) => (prev + 1) % slides.length);
+    };
+    const prevSlide = () => {
+        if (!slides || slides.length === 0) return;
+        setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
+    };
+
+    if (!slides || slides.length === 0) {
+        return null;
+    }
+
+    const currentSlide = slides[current] || slides[0];
 
     return (
         <section className="hero-video" style={{ position: 'relative', height: '95vh', overflow: 'hidden', background: '#000' }}>
@@ -113,45 +103,63 @@ const HeroVideo = () => {
                 pointerEvents: 'none',
                 overflow: 'hidden'
             }}>
-                {videoSlides.map((slide, index) => (
-                    <motion.div
-                        key={slide.id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: index === current ? 1 : 0 }}
-                        transition={{ duration: 1.5 }} // Slower crossfade
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            position: 'absolute',
-                            zIndex: index === current ? 1 : 0
-                        }}
-                    >
-                        <video
-                            src={slide.videoSrc}
-                            poster={slide.poster || heroPoster}
-                            preload="metadata"
-                            // autoPlay removed to prevent all videos playing at once
-                            loop={index !== videoSlides.length - 1} // Loop all except the last one
-                            muted
-                            playsInline
-                            onEnded={() => {
-                                // If it's the last video, move to next slide when done
-                                if (index === videoSlides.length - 1) {
-                                    nextSlide();
-                                }
-                            }}
-                            ref={el => (videoRefs.current[index] = el)}
+                {slides.map((slide, index) => {
+                    const hasCustomMedia = !!slide.customMediaUrl;
+                    const isVideo = !hasCustomMedia || isVideoUrl(slide.customMediaUrl);
+                    const videoSrc = hasCustomMedia ? slide.customMediaUrl : (localVideos[slide.videoIndex] || localVideos[index % 6] || localVideos[0]);
+                    return (
+                        <motion.div
+                            key={slide.id !== undefined ? slide.id : index}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: index === current ? 1 : 0 }}
+                            transition={{ duration: 1.5 }} // Slower crossfade
                             style={{
                                 width: '100%',
                                 height: '100%',
-                                objectFit: 'cover',
                                 position: 'absolute',
-                                top: 0,
-                                left: 0
+                                zIndex: index === current ? 1 : 0
                             }}
-                        />
-                    </motion.div>
-                ))}
+                        >
+                            {isVideo ? (
+                                <video
+                                    src={videoSrc}
+                                    poster={slide.poster || heroPoster}
+                                    preload="metadata"
+                                    loop={index !== slides.length - 1} // Loop all except the last one
+                                    muted
+                                    playsInline
+                                    onEnded={() => {
+                                        if (index === slides.length - 1) {
+                                            nextSlide();
+                                        }
+                                    }}
+                                    ref={el => (videoRefs.current[index] = el)}
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover',
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0
+                                    }}
+                                />
+                            ) : (
+                                <div
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        backgroundImage: `url(${slide.customMediaUrl})`,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center',
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0
+                                    }}
+                                />
+                            )}
+                        </motion.div>
+                    );
+                })}
             </div>
 
             {/* Dark Gradient Overlay */}
@@ -197,11 +205,11 @@ const HeroVideo = () => {
                             </span>
 
                             <h2 className="hero-title">
-                                {videoSlides[current].title}
+                                {currentSlide.title}
                             </h2>
 
                             <p className="hero-subtitle">
-                                {videoSlides[current].subtitle}
+                                {currentSlide.subtitle}
                             </p>
 
                             <motion.a
@@ -228,7 +236,7 @@ const HeroVideo = () => {
                                     fontFamily: "'Outfit', sans-serif"
                                 }}
                             >
-                                {videoSlides[current].cta}
+                                {currentSlide.cta}
                                 <motion.span
                                     animate={{ x: [0, 5, 0] }}
                                     transition={{ repeat: Infinity, duration: 1.5 }}
@@ -242,32 +250,36 @@ const HeroVideo = () => {
             </div>
 
             {/* Controls */}
-            <div className="hero-controls" style={{ position: 'absolute', bottom: '40px', right: '40px', zIndex: 20, display: 'flex', gap: '10px' }}>
-                <button onClick={prevSlide} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', padding: '10px', borderRadius: '50%', cursor: 'pointer', backdropFilter: 'blur(5px)' }}>
-                    <ChevronLeft size={24} />
-                </button>
-                <button onClick={nextSlide} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', padding: '10px', borderRadius: '50%', cursor: 'pointer', backdropFilter: 'blur(5px)' }}>
-                    <ChevronRight size={24} />
-                </button>
-            </div>
+            {slides.length > 1 && (
+                <div className="hero-controls" style={{ position: 'absolute', bottom: '40px', right: '40px', zIndex: 20, display: 'flex', gap: '10px' }}>
+                    <button onClick={prevSlide} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', padding: '10px', borderRadius: '50%', cursor: 'pointer', backdropFilter: 'blur(5px)' }}>
+                        <ChevronLeft size={24} />
+                    </button>
+                    <button onClick={nextSlide} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', padding: '10px', borderRadius: '50%', cursor: 'pointer', backdropFilter: 'blur(5px)' }}>
+                        <ChevronRight size={24} />
+                    </button>
+                </div>
+            )}
 
             {/* Indicators */}
-            <div className="hero-indicators" style={{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', zIndex: 20, display: 'flex', gap: '8px' }}>
-                {videoSlides.map((_, idx) => (
-                    <div
-                        key={idx}
-                        onClick={() => setCurrent(idx)}
-                        style={{
-                            width: idx === current ? '30px' : '10px',
-                            height: '4px',
-                            background: idx === current ? 'var(--color-gold-primary)' : 'rgba(255,255,255,0.3)',
-                            borderRadius: '2px',
-                            transition: 'all 0.3s ease',
-                            cursor: 'pointer'
-                        }}
-                    />
-                ))}
-            </div>
+            {slides.length > 1 && (
+                <div className="hero-indicators" style={{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', zIndex: 20, display: 'flex', gap: '8px' }}>
+                    {slides.map((_, idx) => (
+                        <div
+                            key={idx}
+                            onClick={() => setCurrent(idx)}
+                            style={{
+                                width: idx === current ? '30px' : '10px',
+                                height: '4px',
+                                background: idx === current ? 'var(--color-gold-primary)' : 'rgba(255,255,255,0.3)',
+                                borderRadius: '2px',
+                                transition: 'all 0.3s ease',
+                                cursor: 'pointer'
+                            }}
+                        />
+                    ))}
+                </div>
+            )}
         </section>
     );
 };

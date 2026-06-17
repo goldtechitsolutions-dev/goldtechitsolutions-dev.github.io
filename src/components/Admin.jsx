@@ -94,6 +94,7 @@ const Admin = ({ currentUser }) => {
         return AdminService.getCompanyInfoSync ? AdminService.getCompanyInfoSync() : { address: '', email: '', phone: '', footerOpacity: 0.5 };
     });
     const [isEditingCompanyInfo, setIsEditingCompanyInfo] = useState(false);
+    const [uploadingSlideIdx, setUploadingSlideIdx] = useState(null);
 
     // Selection & UI State
     const [isResetModalOpen, setIsResetModalOpen] = useState(false);
@@ -854,36 +855,108 @@ const Admin = ({ currentUser }) => {
     };
 
     const handleAddService = () => {
-        const updatedServices = [...(companyInfo.services || []), { title: '', description: '', icon: 'Briefcase' }];
-        setCompanyInfo(prev => ({ ...prev, services: updatedServices }));
+        setCompanyInfo(prev => {
+            const services = prev.services || [];
+            return { ...prev, services: [...services, { title: '', description: '', icon: 'Briefcase' }] };
+        });
     };
 
     const handleUpdateService = (idx, field, value) => {
-        const updatedServices = (companyInfo.services || []).map((s, i) => i === idx ? { ...s, [field]: value } : s);
-        setCompanyInfo(prev => ({ ...prev, services: updatedServices }));
+        setCompanyInfo(prev => {
+            const services = prev.services || [];
+            const updatedServices = services.map((s, i) => i === idx ? { ...s, [field]: value } : s);
+            return { ...prev, services: updatedServices };
+        });
     };
 
     const handleDeleteService = (idx) => {
         if (window.confirm('Are you sure you want to delete this service?')) {
-            const updatedServices = (companyInfo.services || []).filter((_, i) => i !== idx);
-            setCompanyInfo(prev => ({ ...prev, services: updatedServices }));
+            setCompanyInfo(prev => {
+                const services = prev.services || [];
+                const updatedServices = services.filter((_, i) => i !== idx);
+                return { ...prev, services: updatedServices };
+            });
         }
     };
 
     const handleAddIndustry = () => {
-        const updatedIndustries = [...(companyInfo.industries || []), { title: '', description: '', icon: 'Globe' }];
-        setCompanyInfo(prev => ({ ...prev, industries: updatedIndustries }));
+        setCompanyInfo(prev => {
+            const industries = prev.industries || [];
+            return { ...prev, industries: [...industries, { title: '', description: '', icon: 'Globe' }] };
+        });
     };
 
     const handleUpdateIndustry = (idx, field, value) => {
-        const updatedIndustries = (companyInfo.industries || []).map((ind, i) => i === idx ? { ...ind, [field]: value } : ind);
-        setCompanyInfo(prev => ({ ...prev, industries: updatedIndustries }));
+        setCompanyInfo(prev => {
+            const industries = prev.industries || [];
+            const updatedIndustries = industries.map((ind, i) => i === idx ? { ...ind, [field]: value } : ind);
+            return { ...prev, industries: updatedIndustries };
+        });
     };
 
     const handleDeleteIndustry = (idx) => {
         if (window.confirm('Are you sure you want to delete this industry?')) {
-            const updatedIndustries = (companyInfo.industries || []).filter((_, i) => i !== idx);
-            setCompanyInfo(prev => ({ ...prev, industries: updatedIndustries }));
+            setCompanyInfo(prev => {
+                const industries = prev.industries || [];
+                const updatedIndustries = industries.filter((_, i) => i !== idx);
+                return { ...prev, industries: updatedIndustries };
+            });
+        }
+    };
+
+    const handleAddHeroSlide = () => {
+        setCompanyInfo(prev => {
+            const slides = (prev.heroSlides || []).filter(Boolean);
+            const newId = slides.length > 0 ? Math.max(...slides.map(s => {
+                const idNum = Number(s?.id);
+                return isNaN(idNum) ? 0 : idNum;
+            })) + 1 : 0;
+            return {
+                ...prev,
+                heroSlides: [...slides, { id: newId, title: '', subtitle: '', cta: 'Explore Solutions', duration: 10000, videoIndex: 0 }]
+            };
+        });
+    };
+
+    const handleUpdateHeroSlide = (idx, field, value) => {
+        setCompanyInfo(prev => {
+            const slides = (prev.heroSlides || []).filter(Boolean);
+            const updatedSlides = slides.map((s, i) => i === idx ? { ...s, [field]: value } : s);
+            return { ...prev, heroSlides: updatedSlides };
+        });
+    };
+
+    const handleUploadHeroMedia = async (idx, e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const maxFileSize = 50 * 1024 * 1024; // 50MB
+        if (file.size > maxFileSize) {
+            alert("File is too large. Maximum size is 50MB.");
+            return;
+        }
+
+        setUploadingSlideIdx(idx);
+        try {
+            const publicUrl = await AdminService.uploadFile(file, 'blog-assets');
+            handleUpdateHeroSlide(idx, 'customMediaUrl', publicUrl);
+            alert("Media uploaded successfully!");
+        } catch (error) {
+            console.error("Upload error:", error);
+            alert("Failed to upload media. Please try again.");
+        } finally {
+            setUploadingSlideIdx(null);
+            e.target.value = '';
+        }
+    };
+
+    const handleDeleteHeroSlide = (idx) => {
+        if (window.confirm('Are you sure you want to delete this hero slide?')) {
+            setCompanyInfo(prev => {
+                const slides = (prev.heroSlides || []).filter(Boolean);
+                const updatedSlides = slides.filter((_, i) => i !== idx);
+                return { ...prev, heroSlides: updatedSlides };
+            });
         }
     };
 
@@ -5363,7 +5436,7 @@ const Admin = ({ currentUser }) => {
                                                     <Building size={18} style={{ position: 'absolute', left: '15px', top: '15px', color: '#64748b' }} />
                                                     <textarea
                                                         value={companyInfo.address}
-                                                        onChange={(e) => setCompanyInfo({ ...companyInfo, address: e.target.value })}
+                                                        onChange={(e) => setCompanyInfo(prev => ({ ...prev, address: e.target.value }))}
                                                         style={{
                                                             width: '100%', padding: '15px 15px 15px 45px', borderRadius: '12px',
                                                             background: 'rgba(0, 0, 0, 0.2)', border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -5382,7 +5455,7 @@ const Admin = ({ currentUser }) => {
                                                     <input
                                                         type="email"
                                                         value={companyInfo.email}
-                                                        onChange={(e) => setCompanyInfo({ ...companyInfo, email: e.target.value })}
+                                                        onChange={(e) => setCompanyInfo(prev => ({ ...prev, email: e.target.value }))}
                                                         style={{
                                                             width: '100%', padding: '15px 15px 15px 45px', borderRadius: '12px',
                                                             background: 'rgba(0, 0, 0, 0.2)', border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -5400,7 +5473,7 @@ const Admin = ({ currentUser }) => {
                                                     <input
                                                         type="text"
                                                         value={companyInfo.phone}
-                                                        onChange={(e) => setCompanyInfo({ ...companyInfo, phone: e.target.value })}
+                                                        onChange={(e) => setCompanyInfo(prev => ({ ...prev, phone: e.target.value }))}
                                                         style={{
                                                             width: '100%', padding: '15px 15px 15px 45px', borderRadius: '12px',
                                                             background: 'rgba(0, 0, 0, 0.2)', border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -5538,6 +5611,181 @@ const Admin = ({ currentUser }) => {
                                                     </button>
                                                 </div>
                                             </div>
+
+                                            {/* Hero Slides Editor */}
+                                            <div style={{ gridColumn: 'span 2', marginTop: '30px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '20px' }}>
+                                                <h4 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '800', marginBottom: '5px' }}>Edit Hero Slides</h4>
+                                                <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginBottom: '20px' }}>Modify the titles, subtitles, CTA texts, durations, and background videos of the homepage hero slider.</p>
+
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                                    {(companyInfo.heroSlides || []).filter(Boolean).map((slide, idx) => (
+                                                        <div key={idx} style={{ background: 'rgba(0,0,0,0.15)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                <h5 style={{ color: '#D4AF37', margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>Hero Slide #{idx + 1}</h5>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleDeleteHeroSlide(idx)}
+                                                                    style={{ background: 'transparent', color: '#ef4444', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.8rem', fontWeight: '700' }}
+                                                                >
+                                                                    <Trash2 size={14} /> DELETE
+                                                                </button>
+                                                            </div>
+
+                                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                                                <div>
+                                                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8' }}>Slide Title</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={slide.title}
+                                                                        onChange={(e) => handleUpdateHeroSlide(idx, 'title', e.target.value)}
+                                                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '0.9rem', outline: 'none' }}
+                                                                        placeholder="e.g. AI and GOLDTECH"
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8' }}>CTA Button Text</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={slide.cta}
+                                                                        onChange={(e) => handleUpdateHeroSlide(idx, 'cta', e.target.value)}
+                                                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '0.9rem', outline: 'none' }}
+                                                                        placeholder="e.g. Discover AI Solutions"
+                                                                    />
+                                                                </div>
+                                                            </div>
+
+                                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                                                <div>
+                                                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8' }}>Slide Duration (ms)</label>
+                                                                    <input
+                                                                        type="number"
+                                                                        value={slide.duration}
+                                                                        onChange={(e) => handleUpdateHeroSlide(idx, 'duration', parseInt(e.target.value) || 10000)}
+                                                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '0.9rem', outline: 'none' }}
+                                                                        placeholder="e.g. 10000"
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8' }}>Background Video Template</label>
+                                                                    <select
+                                                                        value={slide.videoIndex !== undefined ? slide.videoIndex : 0}
+                                                                        onChange={(e) => handleUpdateHeroSlide(idx, 'videoIndex', parseInt(e.target.value) || 0)}
+                                                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '0.9rem', outline: 'none' }}
+                                                                    >
+                                                                        <option value={0}>Artificial Intelligence (AI) Video</option>
+                                                                        <option value={1}>Next-Gen Cloud/Smart City Video</option>
+                                                                        <option value={2}>Abstract Technology (InShot P1)</option>
+                                                                        <option value={3}>Infrastructure & AI Insights (InShot P2)</option>
+                                                                        <option value={4}>Global Reach Tech (InShot P3)</option>
+                                                                        <option value={5}>GoldTech Branding/Collaboration (GT6)</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+                                                            <div>
+                                                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8' }}>Subtitle/Description</label>
+                                                                <textarea
+                                                                    value={slide.subtitle}
+                                                                    onChange={(e) => handleUpdateHeroSlide(idx, 'subtitle', e.target.value)}
+                                                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '0.9rem', outline: 'none', minHeight: '80px', resize: 'vertical' }}
+                                                                    placeholder="Enter slide subtitle..."
+                                                                />
+                                                            </div>
+
+                                                            <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '15px', marginTop: '5px' }}>
+                                                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8' }}>Custom Background Photo or Video (Optional)</label>
+                                                                
+                                                                {slide.customMediaUrl ? (
+                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                                                        {slide.customMediaUrl.match(/\.(mp4|webm|ogg|mov|m4v|3gp)/i) || slide.customMediaUrl.includes('video') ? (
+                                                                            <div style={{ width: '80px', height: '45px', background: '#000', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                                                                <Video size={20} color="#D4AF37" />
+                                                                            </div>
+                                                                        ) : (
+                                                                            <img 
+                                                                                src={slide.customMediaUrl} 
+                                                                                alt="Custom background preview" 
+                                                                                style={{ width: '80px', height: '45px', objectFit: 'cover', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
+                                                                            />
+                                                                        )}
+                                                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                                                            <div style={{ color: '#fff', fontSize: '0.8rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                                                {slide.customMediaUrl}
+                                                                            </div>
+                                                                            <span style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: '600' }}>Active Custom Media</span>
+                                                                        </div>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => handleUpdateHeroSlide(idx, 'customMediaUrl', null)}
+                                                                            style={{ background: 'transparent', color: '#ef4444', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                                                        >
+                                                                            <Trash2 size={12} /> REMOVE
+                                                                        </button>
+                                                                    </div>
+                                                                ) : (
+                                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                                                            <input
+                                                                                type="file"
+                                                                                accept="video/*,image/*"
+                                                                                id={`hero-upload-${idx}`}
+                                                                                onChange={(e) => handleUploadHeroMedia(idx, e)}
+                                                                                style={{ display: 'none' }}
+                                                                                disabled={uploadingSlideIdx !== null}
+                                                                            />
+                                                                            <label
+                                                                                htmlFor={`hero-upload-${idx}`}
+                                                                                style={{
+                                                                                    background: uploadingSlideIdx === idx ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.05)',
+                                                                                    color: uploadingSlideIdx === idx ? '#64748b' : '#fff',
+                                                                                    border: '1px solid rgba(255,255,255,0.1)',
+                                                                                    padding: '10px 20px',
+                                                                                    borderRadius: '8px',
+                                                                                    cursor: uploadingSlideIdx === idx ? 'not-allowed' : 'pointer',
+                                                                                    display: 'inline-flex',
+                                                                                    alignItems: 'center',
+                                                                                    gap: '8px',
+                                                                                    fontWeight: '700',
+                                                                                    fontSize: '0.8rem',
+                                                                                    transition: 'all 0.3s'
+                                                                                }}
+                                                                            >
+                                                                                {uploadingSlideIdx === idx ? (
+                                                                                    <>
+                                                                                        <motion.div
+                                                                                            animate={{ rotate: 360 }}
+                                                                                            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                                                                            style={{ display: 'inline-flex' }}
+                                                                                        >
+                                                                                            <RefreshCw size={14} />
+                                                                                        </motion.div>
+                                                                                        <span>UPLOADING...</span>
+                                                                                    </>
+                                                                                ) : (
+                                                                                    <>
+                                                                                        <Cloud size={14} /> UPLOAD PHOTO OR VIDEO
+                                                                                    </>
+                                                                                )}
+                                                                            </label>
+                                                                            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                                                                                No custom media uploaded. Using template video.
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleAddHeroSlide}
+                                                        style={{ background: 'rgba(212, 175, 55, 0.05)', color: '#D4AF37', border: '1px dashed rgba(212, 175, 55, 0.3)', padding: '12px', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: '700', fontSize: '0.85rem' }}
+                                                    >
+                                                        <Plus size={16} /> ADD NEW HERO SLIDE
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px', marginTop: '10px' }}>
@@ -5627,6 +5875,28 @@ const Admin = ({ currentUser }) => {
                                                         </div>
                                                     );
                                                 })}
+                                            </div>
+                                        </div>
+
+                                        {/* Hero Slides View */}
+                                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '25px', marginBottom: '25px' }}>
+                                            <h4 style={{ color: '#D4AF37', fontSize: '1rem', fontWeight: '800', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px' }}>Hero Slides ({ (companyInfo.heroSlides || []).filter(Boolean).length })</h4>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '15px' }}>
+                                                {(companyInfo.heroSlides || []).filter(Boolean).map((slide, idx) => (
+                                                    <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '15px' }}>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                            <h5 style={{ margin: 0, color: '#fff', fontSize: '0.95rem', fontWeight: '800' }}>{slide.title || 'Untitled Slide'}</h5>
+                                                            <span style={{ fontSize: '0.75rem', color: '#D4AF37', background: 'rgba(212, 175, 55, 0.1)', padding: '2px 8px', borderRadius: '4px', fontWeight: '700' }}>
+                                                                {((slide.duration || 10000) / 1000).toFixed(1)}s
+                                                            </span>
+                                                        </div>
+                                                        <p style={{ color: '#94a3b8', fontSize: '0.8rem', lineHeight: '1.5', margin: '0 0 10px 0' }}>{slide.subtitle || 'No subtitle provided.'}</p>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#64748b', borderTop: '1px solid rgba(255,255,255,0.03)', paddingTop: '8px' }}>
+                                                            <span>Button: <strong>{slide.cta}</strong></span>
+                                                            <span>Video ID: <strong>{slide.videoIndex !== undefined ? slide.videoIndex : idx % 6}</strong></span>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
 

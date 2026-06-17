@@ -569,13 +569,78 @@ const defaultIndustries = [
     { icon: 'Factory', title: "MANUFACTURING & SUPPLY CHAIN", description: "Industrial IoT and resilient supply chain optimization." }
 ];
 
+const defaultHeroSlides = [
+    {
+        id: 0,
+        title: "AI and GOLDTECH",
+        subtitle: "Harnessing the power of Artificial Intelligence to redefine possibilities. GoldTech leads the way in intelligent automation and data-driven innovation.",
+        cta: "Discover AI Solutions",
+        duration: 9000,
+        videoIndex: 0
+    },
+    {
+        id: 1,
+        title: "Next-Gen Cloud Solutions",
+        subtitle: "Transform your business with scalable, secure, and high-performance cloud infrastructure designed for the future.",
+        cta: "Explore Cloud Tech",
+        duration: 10000,
+        videoIndex: 1
+    },
+    {
+        id: 2,
+        title: "Innovating for Tomorrow",
+        subtitle: "GoldTech IT Solutions Private Limited: Where vision meets execution. We build the digital future.",
+        cta: "Discover Our Vision",
+        duration: 10000,
+        videoIndex: 2
+    },
+    {
+        id: 3,
+        title: "Expertise That Matters",
+        subtitle: "From Cloud Architecture to AI-driven insights, our team delivers excellence.",
+        cta: "View Expertise",
+        duration: 10000,
+        videoIndex: 3
+    },
+    {
+        id: 4,
+        title: "Global Reach, Local Impact",
+        subtitle: "Empowering businesses worldwide with scalable, secure, and robust IT solutions.",
+        cta: "See Our Impact",
+        duration: 10000,
+        videoIndex: 4
+    },
+    {
+        id: 5,
+        title: "Partner with GoldTech",
+        subtitle: "Let's collaborate to accelerate your digital transformation journey.",
+        cta: "Start Your Project",
+        duration: 12000,
+        videoIndex: 5
+    }
+];
+
 const initialCompanyInfo = {
     address: '3141, VIDYUTH NAGAR, NEW MIG,PH-2 BHEL, HYDERABAD - 502032',
     email: 'contact@goldtech.in',
     phone: '+91 7332209653',
     footerOpacity: 1,
     services: defaultServices,
-    industries: defaultIndustries
+    industries: defaultIndustries,
+    heroSlides: defaultHeroSlides
+};
+
+const safeMergeCompanyInfo = (parsedInfo) => {
+    if (!parsedInfo) return initialCompanyInfo;
+    return {
+        address: parsedInfo.address !== undefined && parsedInfo.address !== null ? parsedInfo.address : initialCompanyInfo.address,
+        email: parsedInfo.email !== undefined && parsedInfo.email !== null ? parsedInfo.email : initialCompanyInfo.email,
+        phone: parsedInfo.phone !== undefined && parsedInfo.phone !== null ? parsedInfo.phone : initialCompanyInfo.phone,
+        footerOpacity: parsedInfo.footerOpacity !== undefined && parsedInfo.footerOpacity !== null ? parsedInfo.footerOpacity : initialCompanyInfo.footerOpacity,
+        services: (parsedInfo.services && parsedInfo.services.length > 0 ? parsedInfo.services : defaultServices).filter(Boolean),
+        industries: (parsedInfo.industries && parsedInfo.industries.length > 0 ? parsedInfo.industries : defaultIndustries).filter(Boolean),
+        heroSlides: (parsedInfo.heroSlides && parsedInfo.heroSlides.length > 0 ? parsedInfo.heroSlides : defaultHeroSlides).filter(Boolean)
+    };
 };
 
 
@@ -1597,39 +1662,23 @@ const AdminService = {
             if (data && data.length > 0 && data[0].content) {
                 // Parse the JSON stored in the content field of the latest record
                 const parsedInfo = JSON.parse(data[0].content);
-                const mergedInfo = {
-                    services: defaultServices,
-                    industries: defaultIndustries,
-                    ...parsedInfo
-                };
+                const mergedInfo = safeMergeCompanyInfo(parsedInfo);
                 // Also save to local storage as fallback cache
                 AdminService._saveData('gt_company_info', mergedInfo, { silent: true });
                 return mergedInfo;
             }
             const cached = AdminService._getData('gt_company_info', initialCompanyInfo);
-            return {
-                services: defaultServices,
-                industries: defaultIndustries,
-                ...cached
-            };
+            return safeMergeCompanyInfo(cached);
         } catch (error) {
             console.error('Supabase fetch company info error, falling back:', error);
             const cached = AdminService._getData('gt_company_info', initialCompanyInfo);
-            return {
-                services: defaultServices,
-                industries: defaultIndustries,
-                ...cached
-            };
+            return safeMergeCompanyInfo(cached);
         }
     },
 
     getCompanyInfoSync: () => {
         const cached = AdminService._getData('gt_company_info', initialCompanyInfo);
-        return {
-            services: defaultServices,
-            industries: defaultIndustries,
-            ...cached
-        };
+        return safeMergeCompanyInfo(cached);
     },
 
     updateCompanyInfo: async (info) => {

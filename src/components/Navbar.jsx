@@ -31,13 +31,13 @@ const Navbar = () => {
 
                 {/* Desktop Links */}
                 <ul className="nav-links">
-                    <li><Link to="/services" className="nav-link" target="_blank" rel="noopener noreferrer">Services</Link></li>
-                    <li><Link to="/industries" className="nav-link" target="_blank" rel="noopener noreferrer">Industries</Link></li>
-                    <li><Link to="/insights" className="nav-link" target="_blank" rel="noopener noreferrer">Insights</Link></li>
-                    <li><Link to="/about" className="nav-link" target="_blank" rel="noopener noreferrer">About</Link></li>
-                    <li><Link to="/products" className="nav-link" target="_blank" rel="noopener noreferrer">Products</Link></li>
-                    <li><Link to="/career" className="nav-link" target="_blank" rel="noopener noreferrer">Career</Link></li>
-                    <li><Link to="/contact" className="nav-link" target="_blank" rel="noopener noreferrer">Contact Us</Link></li>
+                    <li><Link to="/services" className="nav-link">Services</Link></li>
+                    <li><Link to="/industries" className="nav-link">Industries</Link></li>
+                    <li><Link to="/insights" className="nav-link">Insights</Link></li>
+                    <li><Link to="/about" className="nav-link">About</Link></li>
+                    <li><Link to="/products" className="nav-link">Products</Link></li>
+                    <li><Link to="/career" className="nav-link">Career</Link></li>
+                    <li><Link to="/contact" className="nav-link">Contact Us</Link></li>
                 </ul>
 
                 {/* Mobile Menu Button */}
