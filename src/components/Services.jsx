@@ -1,59 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Code, Server, Shield, Database, Cpu, Globe, Megaphone, Smartphone, Briefcase } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
+import AdminService from '../services/adminService';
 import imBg from '../assets/im.png';
 import SEO from './SEO';
 
-const services = [
-    {
-        icon: Cpu,
-        title: "AI & Machine Learning",
-        description: "Intelligent systems that automate processes and enhance business efficiency. Specializing in AI Strategy and engineering, Data for AI, Process for AI, Agentic legacy modernization, Physical AI, and AI Trust."
-    },
-    {
-        icon: Code,
-        title: "Custom Software Development",
-        description: "Tailored software solutions designed to meet your specific business needs and challenges."
-    },
-    {
-        icon: Server,
-        title: "Cloud Infrastructure",
-        description: "Scalable and secure cloud solutions to power your enterprise applications."
-    },
-    {
-        icon: Shield,
-        title: "Cybersecurity",
-        description: "Advanced security protocols to protect your digital assets and sensitive data."
-    },
-    {
-        icon: Database,
-        title: "Data Analytics",
-        description: "Transform raw data into actionable insights for better decision making."
-    },
-    {
-        icon: Globe,
-        title: "Digital Transformation",
-        description: "Comprehensive strategies to modernize your business operations and customer experience."
-    },
-    {
-        icon: Smartphone,
-        title: "Web & Mobile Applications",
-        description: "Cutting-edge web and mobile solutions for iOS, Android, and cross-platform needs."
-    },
-    {
-        icon: Briefcase,
-        title: "IT Support & Service",
-        description: "Comprehensive managed IT support, system maintenance, and enterprise service management to ensure your business operations never miss a beat."
-    },
-    {
-        icon: Megaphone,
-        title: "Digital & Media Marketing",
-        description: "Strategic digital campaigns and media solutions to amplify your brand presence and engagement."
-    }
-];
-
 const Services = () => {
+    const [services, setServices] = useState(() => {
+        const info = AdminService.getCompanyInfoSync();
+        return info.services || [];
+    });
+
+    useEffect(() => {
+        const fetchServices = async () => {
+            const data = await AdminService.getCompanyInfo();
+            if (data && data.services) {
+                setServices(data.services);
+            }
+        };
+        fetchServices();
+
+        window.addEventListener('gt_data_update', fetchServices);
+        return () => window.removeEventListener('gt_data_update', fetchServices);
+    }, []);
+
     return (
         <section id="services" className="services-section" style={{
             position: 'relative',
@@ -103,6 +74,7 @@ const Services = () => {
                 <div className="services-grid">
                     {services.map((item, index) => {
                         const slug = item.title.toLowerCase().replace(/\s*&\s*/g, '-and-').replace(/\s+/g, '-');
+                        const IconComponent = LucideIcons[item.icon] || LucideIcons.HelpCircle;
                         return (
                             <motion.div
                                 key={index}
@@ -113,7 +85,7 @@ const Services = () => {
                                 transition={{ delay: index * 0.1 }}
                             >
                                 <Link to={`/services/${slug}`} style={{ display: 'block', height: '100%', textDecoration: 'none', color: 'inherit' }}>
-                                    <item.icon className="service-icon" />
+                                    <IconComponent className="service-icon" />
                                     <h3>{item.title}</h3>
                                     <p>{item.description}</p>
                                 </Link>

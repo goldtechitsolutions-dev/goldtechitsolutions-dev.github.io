@@ -13,6 +13,7 @@ import {
     MessageSquare, BarChart2, User, Trash2, Edit, Activity, Server, HardDrive, BarChart3, Video, Building, Globe, AlertTriangle, FileCheck, Mail, Phone, Microscope,
     Cloud, Code, ClipboardList, Zap, UserPlus, Reply, ShieldCheck, ShieldAlert, Crop
 } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 
 const QUILL_MODULES = {
     toolbar: [
@@ -850,6 +851,40 @@ const Admin = ({ currentUser }) => {
         alert('Company Profile Settings Updated Successfully');
         setIsEditingCompanyInfo(false);
         await refreshData();
+    };
+
+    const handleAddService = () => {
+        const updatedServices = [...(companyInfo.services || []), { title: '', description: '', icon: 'Briefcase' }];
+        setCompanyInfo(prev => ({ ...prev, services: updatedServices }));
+    };
+
+    const handleUpdateService = (idx, field, value) => {
+        const updatedServices = (companyInfo.services || []).map((s, i) => i === idx ? { ...s, [field]: value } : s);
+        setCompanyInfo(prev => ({ ...prev, services: updatedServices }));
+    };
+
+    const handleDeleteService = (idx) => {
+        if (window.confirm('Are you sure you want to delete this service?')) {
+            const updatedServices = (companyInfo.services || []).filter((_, i) => i !== idx);
+            setCompanyInfo(prev => ({ ...prev, services: updatedServices }));
+        }
+    };
+
+    const handleAddIndustry = () => {
+        const updatedIndustries = [...(companyInfo.industries || []), { title: '', description: '', icon: 'Globe' }];
+        setCompanyInfo(prev => ({ ...prev, industries: updatedIndustries }));
+    };
+
+    const handleUpdateIndustry = (idx, field, value) => {
+        const updatedIndustries = (companyInfo.industries || []).map((ind, i) => i === idx ? { ...ind, [field]: value } : ind);
+        setCompanyInfo(prev => ({ ...prev, industries: updatedIndustries }));
+    };
+
+    const handleDeleteIndustry = (idx) => {
+        if (window.confirm('Are you sure you want to delete this industry?')) {
+            const updatedIndustries = (companyInfo.industries || []).filter((_, i) => i !== idx);
+            setCompanyInfo(prev => ({ ...prev, industries: updatedIndustries }));
+        }
     };
 
 
@@ -5375,6 +5410,134 @@ const Admin = ({ currentUser }) => {
                                                     />
                                                 </div>
                                             </div>
+                                            
+                                            {/* Services Editor */}
+                                            <div style={{ gridColumn: 'span 2', marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '20px' }}>
+                                                <h4 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '800', marginBottom: '5px' }}>Edit Services</h4>
+                                                <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginBottom: '20px' }}>Modify the titles, descriptions, and icon classes of the services you offer.</p>
+
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                                    {(companyInfo.services || []).map((service, idx) => (
+                                                        <div key={idx} style={{ background: 'rgba(0,0,0,0.15)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                <h5 style={{ color: '#D4AF37', margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>Service #{idx + 1}</h5>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleDeleteService(idx)}
+                                                                    style={{ background: 'transparent', color: '#ef4444', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.8rem', fontWeight: '700' }}
+                                                                >
+                                                                    <Trash2 size={14} /> DELETE
+                                                                </button>
+                                                            </div>
+
+                                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                                                <div>
+                                                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8' }}>Service Title</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={service.title}
+                                                                        onChange={(e) => handleUpdateService(idx, 'title', e.target.value)}
+                                                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '0.9rem', outline: 'none' }}
+                                                                        placeholder="e.g. AI & Machine Learning"
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8' }}>Lucide Icon Name (e.g. Cpu, Code, Shield)</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={service.icon}
+                                                                        onChange={(e) => handleUpdateService(idx, 'icon', e.target.value)}
+                                                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '0.9rem', outline: 'none' }}
+                                                                        placeholder="Cpu"
+                                                                    />
+                                                                </div>
+                                                            </div>
+
+                                                            <div>
+                                                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8' }}>Description</label>
+                                                                <textarea
+                                                                    value={service.description}
+                                                                    onChange={(e) => handleUpdateService(idx, 'description', e.target.value)}
+                                                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '0.9rem', outline: 'none', minHeight: '80px', resize: 'vertical' }}
+                                                                    placeholder="Describe the service..."
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    ))}
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleAddService}
+                                                        style={{ background: 'rgba(212, 175, 55, 0.05)', color: '#D4AF37', border: '1px dashed rgba(212, 175, 55, 0.3)', padding: '12px', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: '700', fontSize: '0.85rem' }}
+                                                    >
+                                                        <Plus size={16} /> ADD NEW SERVICE
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Industries Editor */}
+                                            <div style={{ gridColumn: 'span 2', marginTop: '30px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '20px' }}>
+                                                <h4 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '800', marginBottom: '5px' }}>Edit Industries</h4>
+                                                <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginBottom: '20px' }}>Modify the titles, descriptions, and icon classes of the industries you serve.</p>
+
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                                    {(companyInfo.industries || []).map((industry, idx) => (
+                                                        <div key={idx} style={{ background: 'rgba(0,0,0,0.15)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                <h5 style={{ color: '#3b82f6', margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>Industry #{idx + 1}</h5>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleDeleteIndustry(idx)}
+                                                                    style={{ background: 'transparent', color: '#ef4444', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.8rem', fontWeight: '700' }}
+                                                                >
+                                                                    <Trash2 size={14} /> DELETE
+                                                                </button>
+                                                            </div>
+
+                                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                                                <div>
+                                                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8' }}>Industry Title</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={industry.title}
+                                                                        onChange={(e) => handleUpdateIndustry(idx, 'title', e.target.value)}
+                                                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '0.9rem', outline: 'none' }}
+                                                                        placeholder="e.g. BANKING & FINANCE"
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8' }}>Lucide Icon Name (e.g. Landmark, HeartPulse)</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={industry.icon}
+                                                                        onChange={(e) => handleUpdateIndustry(idx, 'icon', e.target.value)}
+                                                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '0.9rem', outline: 'none' }}
+                                                                        placeholder="Landmark"
+                                                                    />
+                                                                </div>
+                                                            </div>
+
+                                                            <div>
+                                                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8' }}>Description</label>
+                                                                <textarea
+                                                                    value={industry.description}
+                                                                    onChange={(e) => handleUpdateIndustry(idx, 'description', e.target.value)}
+                                                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: '0.9rem', outline: 'none', minHeight: '80px', resize: 'vertical' }}
+                                                                    placeholder="Describe the industry..."
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    ))}
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleAddIndustry}
+                                                        style={{ background: 'rgba(59, 130, 246, 0.05)', color: '#3b82f6', border: '1px dashed rgba(59, 130, 246, 0.3)', padding: '12px', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: '700', fontSize: '0.85rem' }}
+                                                    >
+                                                        <Plus size={16} /> ADD NEW INDUSTRY
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px', marginTop: '10px' }}>
@@ -5426,6 +5589,44 @@ const Admin = ({ currentUser }) => {
                                                     <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', textTransform: 'uppercase' }}>Secure Hotlink</h4>
                                                 </div>
                                                 <p style={{ color: '#fff', fontSize: '1rem', margin: 0, fontWeight: '600' }}>{companyInfo.phone || 'No phone defined'}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Services View */}
+                                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '25px', marginTop: '10px' }}>
+                                            <h4 style={{ color: '#D4AF37', fontSize: '1rem', fontWeight: '800', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px' }}>Services ({ (companyInfo.services || []).length })</h4>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '15px' }}>
+                                                {(companyInfo.services || []).map((service, idx) => {
+                                                    const IconComponent = LucideIcons[service.icon] || LucideIcons.HelpCircle;
+                                                    return (
+                                                        <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '15px' }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                                                                <IconComponent size={18} color="#D4AF37" />
+                                                                <h5 style={{ margin: 0, color: '#fff', fontSize: '0.9rem', fontWeight: '800' }}>{service.title || 'Untitled'}</h5>
+                                                            </div>
+                                                            <p style={{ color: '#94a3b8', fontSize: '0.8rem', lineHeight: '1.5', margin: 0 }}>{service.description || 'No description provided.'}</p>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        {/* Industries View */}
+                                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '25px' }}>
+                                            <h4 style={{ color: '#3b82f6', fontSize: '1rem', fontWeight: '800', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px' }}>Industries ({ (companyInfo.industries || []).length })</h4>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '15px' }}>
+                                                {(companyInfo.industries || []).map((industry, idx) => {
+                                                    const IconComponent = LucideIcons[industry.icon] || LucideIcons.HelpCircle;
+                                                    return (
+                                                        <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '15px' }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                                                                <IconComponent size={18} color="#3b82f6" />
+                                                                <h5 style={{ margin: 0, color: '#fff', fontSize: '0.9rem', fontWeight: '800' }}>{industry.title || 'Untitled'}</h5>
+                                                            </div>
+                                                            <p style={{ color: '#94a3b8', fontSize: '0.8rem', lineHeight: '1.5', margin: 0 }}>{industry.description || 'No description provided.'}</p>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
 
