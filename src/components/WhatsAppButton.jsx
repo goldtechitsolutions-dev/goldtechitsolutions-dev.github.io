@@ -4,7 +4,7 @@ import { MessageCircle } from 'lucide-react';
 
 const WhatsAppButton = () => {
     // Replace with your actual WhatsApp number in international format without + or -
-    const phoneNumber = "919640786029";
+    const phoneNumber = "917332209653";
     const message = encodeURIComponent("Hello GoldTech! I'm interested in your services.");
 
     return (

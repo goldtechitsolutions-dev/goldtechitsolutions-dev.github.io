@@ -89,7 +89,9 @@ const Admin = ({ currentUser }) => {
     const [videos, setVideos] = useState([]);
     const [candidates, setCandidates] = useState([]);
     const [jobs, setJobs] = useState([]);
-    const [companyInfo, setCompanyInfo] = useState({ address: '', email: '', phone: '', footerOpacity: 0.5 });
+    const [companyInfo, setCompanyInfo] = useState(() => {
+        return AdminService.getCompanyInfoSync ? AdminService.getCompanyInfoSync() : { address: '', email: '', phone: '', footerOpacity: 0.5 };
+    });
     const [isEditingCompanyInfo, setIsEditingCompanyInfo] = useState(false);
 
     // Selection & UI State

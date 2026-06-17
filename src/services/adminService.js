@@ -543,10 +543,10 @@ const initialChatLogs = [
 ];
 
 const initialCompanyInfo = {
-    address: '9, Mindspace, HYDERABAD',
-    email: 'goldtechitsolutions@gmail.com',
-    phone: '9640786029',
-    footerOpacity: 0.5
+    address: '3141, VIDYUTH NAGAR, NEW MIG,PH-2 BHEL, HYDERABAD - 502032',
+    email: 'contact@goldtech.in',
+    phone: '+91 7332209653',
+    footerOpacity: 1
 };
 
 
@@ -1577,6 +1577,10 @@ const AdminService = {
             console.error('Supabase fetch company info error, falling back:', error);
             return AdminService._getData('gt_company_info', initialCompanyInfo);
         }
+    },
+
+    getCompanyInfoSync: () => {
+        return AdminService._getData('gt_company_info', initialCompanyInfo);
     },
 
     updateCompanyInfo: async (info) => {

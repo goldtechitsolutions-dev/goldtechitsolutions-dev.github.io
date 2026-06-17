@@ -14,7 +14,9 @@ const ContactForm = () => {
     const [phoneError, setPhoneError] = useState("");
     const dropdownRef = useRef(null);
 
-    const [companyInfo, setCompanyInfo] = useState({ address: '', email: '', phone: '' });
+    const [companyInfo, setCompanyInfo] = useState(() => {
+        return AdminService.getCompanyInfoSync ? AdminService.getCompanyInfoSync() : { address: '', email: '', phone: '' };
+    });
 
     const filteredCountries = countryCodes.filter(c =>
         (c.name && c.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -200,8 +202,8 @@ const ContactForm = () => {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
                             {[
-                                { icon: Mail, label: 'Email Us', text: companyInfo.email || 'goldtechitsolutions@gmail.com' },
-                                { icon: Phone, label: 'Call Us', text: companyInfo.phone || '+91 9640786029' },
+                                { icon: Mail, label: 'Email Us', text: companyInfo.email || 'contact@goldtech.in' },
+                                { icon: Phone, label: 'Call Us', text: companyInfo.phone || '+91 7332209653' },
                                 { icon: Globe, label: 'Global Presence', text: 'Serving Clients Worldwide' }
                             ].map((item, idx) => (
                                 <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>

@@ -4,7 +4,9 @@ import logo from '../assets/logo-transparent.png';
 import AdminService from '../services/adminService';
 
 const Footer = () => {
-    const [companyInfo, setCompanyInfo] = useState({ address: '', email: '', phone: '' });
+    const [companyInfo, setCompanyInfo] = useState(() => {
+        return AdminService.getCompanyInfoSync ? AdminService.getCompanyInfoSync() : { address: '', email: '', phone: '' };
+    });
 
     useEffect(() => {
         const fetchInfo = async () => {

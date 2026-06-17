@@ -32,7 +32,7 @@ const SEO = ({ title, description, keywords, image, url, type = 'website', locat
         },
         "contactPoint": {
             "@type": "ContactPoint",
-            "telephone": "+91-9640786029",
+            "telephone": "+91-7332209653",
             "contactType": "customer service",
             "areaServed": "Worldwide",
             "availableLanguage": ["en", "telugu", "hindi"]
