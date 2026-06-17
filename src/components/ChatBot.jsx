@@ -25,7 +25,7 @@ const ChatBot = () => {
 
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { id: 1, text: "Hi there! 👋 I'm SONA, your virtual assistant at GoldTech IT Solutions. How can I help you today?", sender: 'bot' }
+        { id: 1, text: "Hi there! 👋 I'm SONA, your virtual assistant at GoldTech IT Solutions Private Limited. How can I help you today?", sender: 'bot' }
     ]);
     const [input, setInput] = useState("");
     const [step, setStep] = useState(0); // 0: Start, 1: Name, 2: Email, 3: Phone, 4: Service, 5: Done
@@ -363,7 +363,7 @@ const ChatBot = () => {
                 case 7: // Final Requirement Capture
                     {
                         setFormData(prev => ({ ...prev, requirements: lastInput }));
-                        nextMessage = "It's been a pleasure assisting you! I've successfully transferred your requirements to our technical specialized team. One of our experts will reach out to you within 24 hours to discuss the next steps. Thank you for choosing GoldTech IT Solutions. Have a truly wonderful day! ✨";
+                        nextMessage = "It's been a pleasure assisting you! I've successfully transferred your requirements to our technical specialized team. One of our experts will reach out to you within 24 hours to discuss the next steps. Thank you for choosing GoldTech IT Solutions Private Limited. Have a truly wonderful day! ✨";
                         nextStep = 5;
                     }
                     break;

@@ -994,13 +994,9 @@ const AdminService = {
                 .order('date', { ascending: false });
 
             if (error) throw error;
-            // Return empty list if no data, allowing UI to show "No queries" instead of mock data
             return data || [];
         } catch (error) {
             console.error('Supabase fetch queries error:', error);
-            // Only fallback if we explicitly want to see demo data in dev, 
-            // but for real production issues, it's better to return empty or error.
-            // Keeping local storage as a secondary source if user has local data but DB is down.
             return AdminService._getData('gt_queries', []);
         }
     },
@@ -1014,6 +1010,7 @@ const AdminService = {
                     email: query.email,
                     phone: query.phone,
                     message: query.message,
+                    status: query.status || 'New',
                     date: query.date || new Date().toISOString().split('T')[0]
                 }])
                 .select();
@@ -1032,10 +1029,27 @@ const AdminService = {
     },
 
     async updateQuery(updatedQuery) {
-        const queries = await AdminService.getQueries();
-        const newQueries = queries.map(q => q.id === updatedQuery.id ? updatedQuery : q);
-        AdminService._saveData('gt_queries', newQueries);
-        return updatedQuery;
+        try {
+            const { error } = await supabase
+                .from('queries')
+                .update({
+                    name: updatedQuery.name,
+                    email: updatedQuery.email,
+                    phone: updatedQuery.phone,
+                    message: updatedQuery.message,
+                    status: updatedQuery.status
+                })
+                .eq('id', updatedQuery.id);
+
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            console.error('Supabase update query error, falling back:', error);
+            const queries = await AdminService.getQueries();
+            const newQueries = queries.map(q => q.id === updatedQuery.id ? updatedQuery : q);
+            AdminService._saveData('gt_queries', newQueries);
+            return updatedQuery;
+        }
     },
 
     async deleteQuery(id) {
@@ -1547,13 +1561,13 @@ const AdminService = {
                 .from('blogs')
                 .select('content')
                 .eq('slug', 'system-company-profile')
-                .maybeSingle();
+                .order('id', { ascending: false });
 
             if (error) throw error;
 
-            if (data && data.content) {
-                // Parse the JSON stored in the content field
-                const parsedInfo = JSON.parse(data.content);
+            if (data && data.length > 0 && data[0].content) {
+                // Parse the JSON stored in the content field of the latest record
+                const parsedInfo = JSON.parse(data[0].content);
                 // Also save to local storage as fallback cache
                 AdminService._saveData('gt_company_info', parsedInfo, { silent: true });
                 return parsedInfo;
@@ -1567,12 +1581,14 @@ const AdminService = {
 
     updateCompanyInfo: async (info) => {
         try {
-            // Check if system record exists
-            const { data: existingData } = await supabase
+            // Check for existing records
+            const { data: existingRecords, error: fetchError } = await supabase
                 .from('blogs')
                 .select('id')
                 .eq('slug', 'system-company-profile')
-                .maybeSingle();
+                .order('id', { ascending: true });
+
+            if (fetchError) throw fetchError;
 
             const payload = {
                 title: 'System Component: Company Profile',
@@ -1582,10 +1598,29 @@ const AdminService = {
                 category: 'Configuration'
             };
 
-            if (existingData) {
-                await supabase.from('blogs').update(payload).eq('id', existingData.id);
+            if (existingRecords && existingRecords.length > 0) {
+                const primaryId = existingRecords[0].id;
+                // Update the oldest/primary record
+                const { error: updateError } = await supabase
+                    .from('blogs')
+                    .update(payload)
+                    .eq('id', primaryId);
+
+                if (updateError) throw updateError;
+
+                // Clean up any other duplicates that might exist
+                if (existingRecords.length > 1) {
+                    const extraIds = existingRecords.slice(1).map(r => r.id);
+                    await supabase
+                        .from('blogs')
+                        .delete()
+                        .in('id', extraIds);
+                }
             } else {
-                await supabase.from('blogs').insert([payload]);
+                const { error: insertError } = await supabase
+                    .from('blogs')
+                    .insert([payload]);
+                if (insertError) throw insertError;
             }
 
             // Sync successfully, also update local cache
@@ -2519,44 +2554,16 @@ const AdminService = {
     // --- Sales Portal Methods ---
     async getLeads() {
         try {
-            const [ldsResponse, qsResponse] = await Promise.all([
-                supabase.from('gt_leads').select('*').order('date', { ascending: false }),
-                supabase.from('queries').select('*').order('date', { ascending: false })
-            ]);
+            const { data, error } = await supabase
+                .from('gt_leads')
+                .select('*')
+                .order('date', { ascending: false });
 
-            let lds = ldsResponse.data || [];
-            let qs = qsResponse.data || [];
-
-            // Only load from local storage if Supabase returned absolutely nothing (not even an empty array, or if it's explicitly disconnected)
-            // But we avoid loading 'initialLeads' by default if we want real data visibility.
-            if (lds.length === 0) {
-                const localLads = AdminService._getData('gt_leads', []);
-                lds = localLads;
-            }
-            if (qs.length === 0) {
-                const localQs = AdminService._getData('gt_queries', []);
-                qs = localQs;
-            }
-
-            // Merge and sort safely handling various date formats (Supabase snake_case vs JS camelCase)
-            const combined = [...lds, ...qs].sort((a, b) => {
-                const dateA = a.date || a.created_at || a.createdAt || 0;
-                const dateB = b.date || b.created_at || b.createdAt || 0;
-                const timeA = new Date(dateA).getTime();
-                const timeB = new Date(dateB).getTime();
-                return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
-            });
-
-            return combined;
+            if (error) throw error;
+            return data || [];
         } catch (error) {
             console.error('Supabase fetch leads error:', error);
-            const localLds = AdminService._getData('gt_leads', []);
-            const localQs = AdminService._getData('gt_queries', []);
-            return [...localLds, ...localQs].sort((a, b) => {
-                const timeA = new Date(a.date || a.created_at || 0).getTime();
-                const timeB = new Date(b.date || b.created_at || 0).getTime();
-                return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
-            });
+            return AdminService._getData('gt_leads', []);
         }
     },
 
@@ -3289,6 +3296,8 @@ const AdminService = {
             return true;
         }
     },
+
+
 
     uploadFile: async (file, bucket = 'blog-assets') => {
         const fileExt = file.name.split('.').pop();

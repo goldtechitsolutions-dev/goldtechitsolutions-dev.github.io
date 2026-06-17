@@ -160,7 +160,7 @@ const LocationSEO = () => {
             <section style={{ padding: '100px 20px', textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
                 <h2 style={{ fontSize: '2.5rem', fontWeight: '800', marginBottom: '24px' }}>Ready to Elevate Your IT in {formattedCity}?</h2>
                 <p style={{ color: '#94a3b8', fontSize: '1.1rem', marginBottom: '40px', lineHeight: '1.6' }}>
-                    Contact our specialists today to discuss how GoldTech IT Solutions can secure and scale your infrastructure.
+                    Contact our specialists today to discuss how GoldTech IT Solutions Private Limited can secure and scale your infrastructure.
                 </p>
                 <Link to="/contact" className="premium-button" style={{ transform: 'scale(1.05)' }}>
                     Contact Our Local Team

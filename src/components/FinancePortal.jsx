@@ -100,7 +100,7 @@ const InvoiceDocument = React.forwardRef(({ invoice }, ref) => (
                 <p style={{ margin: '5px 0 0 0', color: '#666', fontSize: '0.9rem' }}>#{invoice.id}</p>
             </div>
             <div style={{ textAlign: 'right' }}>
-                <h2 style={{ margin: 0, fontSize: '1.2rem' }}>GoldTech IT Solutions</h2>
+                <h2 style={{ margin: 0, fontSize: '1.2rem' }}>GoldTech IT Solutions Private Limited</h2>
                 <p style={{ margin: '5px 0', fontSize: '0.8rem', color: '#666' }}>123 Tech Park, Innovation Way<br />Silicon Valley, CA, 94000<br />support@goldtech.com</p>
             </div>
         </div>

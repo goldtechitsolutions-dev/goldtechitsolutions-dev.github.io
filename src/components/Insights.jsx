@@ -58,7 +58,7 @@ const Insights = () => {
             padding: 'clamp(60px, 10vw, 100px) 0'
         }}>
             <SEO
-                title="Insights & Media | GoldTech IT Solutions"
+                title="Insights & Media | GoldTech IT Solutions Private Limited"
                 description="Read the latest thought leadership, tech trends, and watch our corporate media and walkthroughs."
                 url="insights"
             />

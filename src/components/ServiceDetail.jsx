@@ -70,7 +70,7 @@ const serviceData = {
             "AI-Assisted Self-Service Analytics"
         ]
     },
-    "ai-&-machine-learning": {
+    "ai-and-machine-learning": {
         title: "AI & Machine Learning",
         subtitle: "Enterprise-Grade Intelligence for the Modern Era",
         overview: "At GoldTech, we empower organizations to harness the transformative power of Artificial Intelligence. Our approach goes beyond simple automation; we focus on building intelligent ecosystems that drive strategic value, operational excellence, and competitive advantage through state-of-the-art machine learning models and engineering.",
@@ -102,7 +102,7 @@ const serviceData = {
             "Legacy Integration & Retirement"
         ]
     },
-    "web-&-mobile-applications": {
+    "web-and-mobile-applications": {
         title: "Web & Mobile Applications",
         subtitle: "Immersive Experiences Across Every Screen",
         overview: "Deliver exceptional value wherever your users are. GoldTech builds high-performance web and mobile applications that combine stunning aesthetics with seamless functionality, ensuring your digital presence is as powerful as your brand.",
@@ -118,7 +118,7 @@ const serviceData = {
             "Wearable and IoT Integrations"
         ]
     },
-    "it-support-&-service": {
+    "it-support-and-service": {
         title: "IT Support & Service",
         subtitle: "Ensuring Operational Continuity and Technical Excellence",
         overview: "GoldTech provides end-to-end IT support and managed services designed to keep your business running at peak performance. We understand that your digital infrastructure is the lifeblood of your organization, which is why we offer proactive monitoring and rapid-response support solutions.",
@@ -134,7 +134,7 @@ const serviceData = {
             "IT Service Management (ITSM) Consulting"
         ]
     },
-    "digital-&-media-marketing": {
+    "digital-and-media-marketing": {
         title: "Digital & Media Marketing",
         subtitle: "Amplify Your Brand Presence Across All Channels",
         overview: "In the digital age, visibility is currency. Our comprehensive Digital & Media Marketing services are designed to elevate your brand, engage your target audience, and drive measurable growth. We combine creative storytelling with data-driven strategies to ensure your message resonates and converts.",
@@ -153,14 +153,14 @@ const serviceData = {
 };
 
 // Aliases for robustness
-serviceData["ai & machine learning"] = serviceData["ai-&-machine-learning"];
-serviceData["ai-machine-learning"] = serviceData["ai-&-machine-learning"];
-serviceData["ai-automation"] = serviceData["ai-&-machine-learning"];
+serviceData["ai & machine learning"] = serviceData["ai-and-machine-learning"];
+serviceData["ai-machine-learning"] = serviceData["ai-and-machine-learning"];
+serviceData["ai-automation"] = serviceData["ai-and-machine-learning"];
 serviceData["custom-software"] = serviceData["custom-software-development"];
 serviceData["cloud"] = serviceData["cloud-infrastructure"];
 serviceData["data"] = serviceData["data-analytics"];
 serviceData["digital"] = serviceData["digital-transformation"];
-serviceData["marketing"] = serviceData["digital-&-media-marketing"];
+serviceData["marketing"] = serviceData["digital-and-media-marketing"];
 
 const ServiceDetail = () => {
     const { id } = useParams();

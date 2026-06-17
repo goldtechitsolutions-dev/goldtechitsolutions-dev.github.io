@@ -79,7 +79,7 @@ const Footer = () => {
                     </div>
                 </div>
                 <div className="copyright">
-                    <p>&copy; {new Date().getFullYear()} GoldTech IT Solutions. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} GoldTech IT Solutions Private Limited. All rights reserved.</p>
                 </div>
             </div>
         </footer>

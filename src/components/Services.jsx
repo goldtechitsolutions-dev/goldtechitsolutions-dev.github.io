@@ -102,7 +102,7 @@ const Services = () => {
                 </div>
                 <div className="services-grid">
                     {services.map((item, index) => {
-                        const slug = item.title.toLowerCase().replace(/\s+/g, '-');
+                        const slug = item.title.toLowerCase().replace(/\s*&\s*/g, '-and-').replace(/\s+/g, '-');
                         return (
                             <motion.div
                                 key={index}

@@ -20,7 +20,7 @@ const AboutPage = () => {
         }}>
             <SEO
                 title="About Us"
-                description="Discover GoldTech IT Solutions. We are a global technology partner dedicated to transforming businesses through innovation, integrity, and intelligent solutions."
+                description="Discover GoldTech IT Solutions Private Limited. We are a global technology partner dedicated to transforming businesses through innovation, integrity, and intelligent solutions."
                 url="about"
             />
             {/* Hero Section */}
@@ -59,7 +59,7 @@ const AboutPage = () => {
                         <div style={{ background: 'rgba(255, 255, 255, 0.9)', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
                             <h2 style={{ fontSize: '2.5rem', color: 'var(--color-blue-dark)', marginBottom: '20px', fontWeight: '700' }}>Who We Are</h2>
                             <p style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#334155', marginBottom: '20px' }}>
-                                Founded on the principles of excellence and innovation, GoldTech IT Solutions has grown from a visionary startup to a trusted global technology partner. We specialize in delivering high-impact software solutions, cloud infrastructure, and digital strategies that empower enterprises to thrive in a rapidly evolving digital landscape.
+                                Founded on the principles of excellence and innovation, GoldTech IT Solutions Private Limited has grown from a visionary startup to a trusted global technology partner. We specialize in delivering high-impact software solutions, cloud infrastructure, and digital strategies that empower enterprises to thrive in a rapidly evolving digital landscape.
                             </p>
                             <p style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#334155' }}>
                                 Our team of expert engineers, strategists, and creative minds work collaboratively to solve complex business challenges. We don't just build technology; we build pathways to success for our clients.

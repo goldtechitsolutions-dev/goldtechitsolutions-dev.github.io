@@ -176,7 +176,7 @@ const CandidatePortal = () => {
                     }}
                 >
                     <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-                        <img src={companyLogo} alt="GoldTech IT Solutions" style={{ height: '60px', marginBottom: '15px', filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.3))' }} />
+                        <img src={companyLogo} alt="GoldTech IT Solutions Private Limited" style={{ height: '60px', marginBottom: '15px', filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.3))' }} />
                         <h2 style={{ margin: '0 0 10px 0', fontSize: '1.8rem' }}>{authMode === 'signup' ? 'Create Your Profile' : 'Welcome Back'}</h2>
                         <p style={{ color: '#94a3b8', margin: 0 }}>
                             {authMode === 'signup' ? 'Join GoldTech and track your career journey' : 'Access your profile to track applications'}

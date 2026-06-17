@@ -110,7 +110,7 @@ const Career = () => {
         }}>
             <SEO
                 title="Careers"
-                description="Join GoldTech IT Solutions. View open positions and apply to be part of building the Gold Standard of Fintech Infrastructure."
+                description="Join GoldTech IT Solutions Private Limited. View open positions and apply to be part of building the Gold Standard of Fintech Infrastructure."
                 url="career"
             />
             {/* Light Overlay */}

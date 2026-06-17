@@ -2,14 +2,14 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 const SEO = ({ title, description, keywords, image, url, type = 'website', location }) => {
-    const siteTitle = "GOLDTECH IT Solutions";
+    const siteTitle = "GOLDTECH IT Solutions Private Limited";
     const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
     const siteDescription = "GOLDTECH: Premium IT consulting, AI automation, Managed Services, and Cloud solutions for global enterprises.";
     const metaDescription = description || siteDescription;
     const siteUrl = "https://www.goldtech.in/";
     const fullUrl = url ? `${siteUrl}${url.startsWith('/') ? url.slice(1) : url}` : siteUrl;
 
-    const defaultKeywords = "GOLDTECH, GoldTech IT Solutions, IT Services India, Managed IT Support New York, Cybersecurity London, Cloud Solutions Dubai, IT Consulting Singapore, AI Automation, Tech Excellence";
+    const defaultKeywords = "GOLDTECH, GoldTech IT Solutions Private Limited, IT Services India, Managed IT Support New York, Cybersecurity London, Cloud Solutions Dubai, IT Consulting Singapore, AI Automation, Tech Excellence";
     const metaKeywords = keywords ? `${keywords}, ${defaultKeywords}` : defaultKeywords;
 
     // Organization Schema (Branding & Sitelinks)
@@ -17,7 +17,7 @@ const SEO = ({ title, description, keywords, image, url, type = 'website', locat
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "GOLDTECH",
-        "legalName": "GOLDTECH IT Solutions",
+        "legalName": "GOLDTECH IT Solutions Private Limited",
         "url": siteUrl,
         "logo": `${siteUrl}logo.png`,
         "foundingDate": "2010",

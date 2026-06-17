@@ -335,7 +335,7 @@ const Admin = ({ currentUser }) => {
         }
 
         if (leadFilters.status !== 'All') {
-            result = result.filter(l => l.status === leadFilters.status);
+            result = result.filter(l => l.status?.toLowerCase() === leadFilters.status?.toLowerCase());
         }
 
         // Sorting
@@ -810,7 +810,7 @@ const Admin = ({ currentUser }) => {
         }
     };
 
-    const handleStatusUpdate = async (id, status, type) => {
+    const handleStatusUpdate = async (id, status, type, tableTag = null) => {
         if (type === 'application') {
             const app = applications.find(a => a.id == id);
             const candidate = candidates.find(c => c.id == id);
@@ -823,8 +823,13 @@ const Admin = ({ currentUser }) => {
                 await AdminService.updateCandidate(id, { ...selectedItem, stage: status, status: status });
             }
         } else if (type === 'query') {
-            const q = queries.find(q => q.id == id);
+            const q = queries.find(q => q.id === id);
             if (q) await AdminService.updateQuery({ ...q, status });
+            await refreshData();
+        } else if (type === 'lead') {
+            const l = leads.find(l => l.id === id);
+            if (l) await AdminService.updateLead({ ...l, status });
+            await refreshData();
         } else if (type === 'meeting') {
             const m = meetings.find(m => m.id == id);
             if (m) await AdminService.updateMeeting({ ...m, status });
@@ -1169,7 +1174,7 @@ const Admin = ({ currentUser }) => {
         <div style={{ display: 'flex', minHeight: '100vh', background: 'radial-gradient(circle at top right, #001E3C 0%, #000B18 100%)', color: '#fff' }}>
             {/* Sidebar */}
             <div style={{
-                width: '280px',
+                width: 'clamp(200px, 30vw, 280px)',
                 height: '100vh',
                 background: 'rgba(0, 11, 24, 0.4)',
                 backdropFilter: 'blur(30px)',
@@ -1288,21 +1293,21 @@ const Admin = ({ currentUser }) => {
             </div>
 
             {/* Main Content */}
-            <div style={{ flex: 1, padding: '20px', overflowY: 'auto', position: 'relative', background: 'transparent', scrollbarGutter: 'stable' }}>
+            <div style={{ flex: 1, padding: 'clamp(10px, 5vw, 20px)', overflowY: 'auto', position: 'relative', background: 'transparent', scrollbarGutter: 'stable' }}>
                 <header style={{
                     marginBottom: '40px',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    padding: '0 10px'
+                    padding: 'clamp(5px, 2vw, 10px)'
                 }}>
                     <div>
                         <h1 style={{
-                            fontSize: '2.2rem',
+                            fontSize: 'clamp(1.5rem, 5vw, 2.2rem)',
                             color: '#fff',
                             fontWeight: '900',
                             letterSpacing: '-0.5px',
-                            background: 'linear-gradient(to right, #fff 0%, #94a3b8 100%)',
+                            background: 'linear-gradient(to right, #fff 0%, #D4AF37 100%)',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
                             marginBottom: '4px'
@@ -2064,10 +2069,11 @@ const Admin = ({ currentUser }) => {
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                                        <th style={thStyle}>ID</th>
                                         <th style={thStyle}>Identity Profile</th>
                                         <th style={thStyle}>Contact</th>
                                         <th style={thStyle}>Message</th>
-                                        <th style={thStyle}>Sales Intelligence</th>
+                                        <th style={thStyle}>Status</th>
                                         <th style={thStyle}>Temporal Activity</th>
                                         <th style={{ ...thStyle, textAlign: 'right' }}>Actions</th>
                                     </tr>
@@ -2075,25 +2081,24 @@ const Admin = ({ currentUser }) => {
                                 <tbody>
                                     {filteredLeads.length > 0 ? (
                                         filteredLeads.map((q) => (
-                                            <tr key={q.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
+                                            <tr key={q.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }} className="hover-row">
+                                                <td style={{ ...tdStyle, color: '#64748b', fontSize: '0.7rem', fontFamily: 'monospace' }}>{q.id}</td>
                                                 <td style={tdStyle}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                        <div style={{ fontWeight: '700', color: '#fff' }}>{q.name}</div>
-                                                        {q._isLocal && (
-                                                            <span style={{ fontSize: '0.65rem', background: 'rgba(212, 175, 55, 0.15)', color: '#D4AF37', padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(212, 175, 55, 0.3)' }}>LOCAL ONLY</span>
-                                                        )}
-                                                    </div>
+                                                    <div style={{ fontWeight: '700', color: '#fff' }}>{q.name}</div>
+                                                    {q._isLocal && (
+                                                        <span style={{ fontSize: '0.65rem', background: 'rgba(212, 175, 55, 0.15)', color: '#D4AF37', padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(212, 175, 55, 0.3)' }}>LOCAL</span>
+                                                    )}
                                                 </td>
                                                 <td style={tdStyle}>
-                                                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'flex', flexDirection: 'column', gap: '2px' }}>
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                             {q.email}
                                                             <button
                                                                 onClick={() => { copyToClipboard(q.email); setCopiedId(`${q.id}-email`); setTimeout(() => setCopiedId(null), 2000); }}
-                                                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: copiedId === `${q.id}-email` ? '#10b981' : '#64748b', display: 'flex' }}
+                                                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: copiedId === `${q.id}-email` ? '#10b981' : '#64748b' }}
                                                                 title="Copy Email"
                                                             >
-                                                                {copiedId === `${q.id}-email` ? <Check size={12} /> : <Copy size={12} />}
+                                                                <Copy size={12} />
                                                             </button>
                                                         </div>
                                                         {q.phone && (
@@ -2101,43 +2106,45 @@ const Admin = ({ currentUser }) => {
                                                                 {q.phone}
                                                                 <button
                                                                     onClick={() => { copyToClipboard(q.phone); setCopiedId(`${q.id}-phone`); setTimeout(() => setCopiedId(null), 2000); }}
-                                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: copiedId === `${q.id}-phone` ? '#10b981' : '#64748b', display: 'flex' }}
-                                                                    title="Copy Phone Number"
+                                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: copiedId === `${q.id}-phone` ? '#10b981' : '#64748b' }}
+                                                                    title="Copy Phone"
                                                                 >
-                                                                    {copiedId === `${q.id}-phone` ? <Check size={12} /> : <Copy size={12} />}
+                                                                    <Copy size={12} />
                                                                 </button>
                                                             </div>
                                                         )}
                                                     </div>
                                                 </td>
-                                                <td style={tdStyle}>
-                                                    <span style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>{q.message || q.subject}</span>
+                                                <td style={{ ...tdStyle, maxWidth: '200px' }}>
+                                                    <div style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: '1.4' }} className="text-truncate-2">
+                                                        {q.message || q.comment || 'N/A'}
+                                                    </div>
                                                 </td>
                                                 <td style={tdStyle}>
                                                     <select
-                                                        value={q.status}
-                                                        onChange={(e) => handleStatusUpdate(q.id, e.target.value, 'query')}
+                                                        value={q.status || 'New'}
+                                                        onChange={(e) => handleStatusUpdate(q.id, e.target.value, 'lead')}
                                                         style={{
                                                             ...statusBadge(q.status),
                                                             border: `1px solid ${statusBadge(q.status).borderColor || 'rgba(255,255,255,0.1)'}`,
                                                             cursor: 'pointer',
                                                             outline: 'none',
                                                             appearance: 'none',
-                                                            WebkitAppearance: 'none',
                                                             textAlign: 'center',
-                                                            width: 'fit-content'
+                                                            width: 'fit-content',
+                                                            padding: '4px 10px'
                                                         }}
                                                     >
-                                                        <option value="New" style={{ background: '#1a1a1a', color: '#fff' }}>New</option>
-                                                        <option value="Open" style={{ background: '#1a1a1a', color: '#fff' }}>Open</option>
-                                                        <option value="Closed" style={{ background: '#1a1a1a', color: '#fff' }}>Closed</option>
-                                                        <option value="Pending" style={{ background: '#1a1a1a', color: '#fff' }}>Pending</option>
-                                                        <option value="Hold" style={{ background: '#1a1a1a', color: '#fff' }}>Hold</option>
+                                                        <option value="New">NEW</option>
+                                                        <option value="Open">OPEN</option>
+                                                        <option value="Closed">CLOSED</option>
+                                                        <option value="Pending">PENDING</option>
+                                                        <option value="Hold">HOLD</option>
                                                     </select>
                                                 </td>
-                                                <td style={{ ...tdStyle, color: '#94a3b8', fontSize: '0.85rem' }}>{q.date}</td>
+                                                <td style={{ ...tdStyle, color: '#94a3b8', fontSize: '0.75rem' }}>{q.date}</td>
                                                 <td style={{ ...tdStyle, textAlign: 'right' }}>
-                                                    <button onClick={() => handleViewItem(q, 'query')} style={{ color: '#000', background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)', border: 'none', cursor: 'pointer', fontWeight: '800', padding: '8px 16px', borderRadius: '8px', fontSize: '0.75rem' }}>Initiate Contact</button>
+                                                    <button onClick={() => handleViewItem(q, 'lead')} style={{ color: '#000', background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)', border: 'none', cursor: 'pointer', fontWeight: '800', padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem' }}>DETAILS</button>
                                                 </td>
                                             </tr>
                                         ))
@@ -3159,21 +3166,21 @@ const Admin = ({ currentUser }) => {
                                                             {report.type}
                                                         </span>
                                                     </td>
-                                                    <td style={tdStyle}>
-                                                        <button style={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '8px',
-                                                            background: 'rgba(212, 175, 55, 0.1)',
-                                                            border: 'none',
-                                                            padding: '8px 16px',
-                                                            borderRadius: '8px',
-                                                            cursor: 'pointer',
-                                                            color: '#D4AF37',
-                                                            fontSize: '0.8rem',
-                                                            fontWeight: '800'
-                                                        }}>
-                                                            <Download size={14} /> EXPORT
+                                                    <td style={{ ...tdStyle, textAlign: 'right' }}>
+                                                        <button
+                                                            onClick={() => handleViewItem(report, 'report')}
+                                                            style={{
+                                                                background: 'rgba(212, 175, 55, 0.2)',
+                                                                color: '#D4AF37',
+                                                                padding: '6px 12px',
+                                                                borderRadius: '6px',
+                                                                border: 'none',
+                                                                cursor: 'pointer',
+                                                                fontSize: '0.75rem',
+                                                                fontWeight: '800'
+                                                            }}
+                                                        >
+                                                            VIEW DETAILS
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -3568,7 +3575,7 @@ const Admin = ({ currentUser }) => {
 
                 {/* Modal Overlay System */}
                 {
-                    modalType && ['application', 'query', 'meeting', 'upsert_client', 'upsert_credential', 'upsert_user', 'chat_transcript', 'post_job', 'loading', 'upsert_blog', 'upsert_video'].includes(modalType) && (
+                    modalType && ['application', 'query', 'lead', 'meeting', 'upsert_client', 'upsert_credential', 'upsert_user', 'chat_transcript', 'post_job', 'loading', 'upsert_blog', 'upsert_video'].includes(modalType) && (
                         <div style={{
                             position: 'fixed',
                             top: 0,
@@ -4526,13 +4533,13 @@ const Admin = ({ currentUser }) => {
                                             </div>
                                         </form>
                                     )}
-                                    {['application', 'query', 'meeting', 'chat_transcript'].includes(modalType) && (
+                                    {['application', 'query', 'lead', 'meeting', 'chat_transcript'].includes(modalType) && (
                                         selectedItem ? (
                                             <>
                                                 {/* Header for detail views */}
                                                 <h2 style={{ marginBottom: '20px', color: '#fff', fontSize: '1.5rem', fontWeight: '800' }}>
                                                     {modalType === 'application' && 'Application Details'}
-                                                    {modalType === 'query' && 'Message Details'}
+                                                    {(modalType === 'query' || modalType === 'lead') && 'Message Details'}
                                                     {modalType === 'meeting' && 'Meeting Schedule'}
                                                     {modalType === 'chat_transcript' && 'Chat Transcript'}
                                                 </h2>
@@ -4543,7 +4550,7 @@ const Admin = ({ currentUser }) => {
                                                         <span style={{ fontWeight: '500' }}>{selectedItem.name || selectedItem.user || 'Unknown'}</span>
                                                     </div>
 
-                                                    {['application', 'query', 'meeting'].includes(modalType) && (
+                                                    {['application', 'query', 'lead', 'meeting'].includes(modalType) && (
                                                         <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '10px', fontSize: '1rem', color: '#f8fafc' }}>
                                                             <span style={{ color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', fontSize: '0.8rem' }}>Endpoint:</span>
                                                             <span style={{ fontWeight: '500' }}>{selectedItem.email}</span>
@@ -4675,7 +4682,7 @@ const Admin = ({ currentUser }) => {
                                                         </div>
                                                     )}
 
-                                                    {modalType === 'query' && (
+                                                    {(modalType === 'query' || modalType === 'lead') && (
                                                         <div style={{ marginTop: '10px' }}>
                                                             <span style={{ color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', fontSize: '0.8rem', display: 'block', marginBottom: '10px' }}>Customer Message</span>
                                                             <div style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', fontSize: '0.95rem', color: '#fff', lineHeight: '1.6' }}>
@@ -4685,7 +4692,7 @@ const Admin = ({ currentUser }) => {
                                                     )}
 
                                                     {/* Status Selector & Actions */}
-                                                    {['application', 'query', 'meeting', 'chat_transcript'].includes(modalType) && (
+                                                    {['application', 'query', 'lead', 'meeting', 'chat_transcript'].includes(modalType) && (
                                                         <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '20px' }}>
                                                             <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr auto', gap: '15px', fontSize: '1rem', color: '#f8fafc', alignItems: 'center' }}>
                                                                 <span style={{ color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', fontSize: '0.8rem' }}>Update Status:</span>
@@ -4712,7 +4719,7 @@ const Admin = ({ currentUser }) => {
                                                                             <option value="rejected" style={{ background: '#1a1a1a', color: '#fff' }}>Rejected</option>
                                                                         </>
                                                                     )}
-                                                                    {modalType === 'query' && (
+                                                                    {['query', 'lead'].includes(modalType) && (
                                                                         <>
                                                                             <option value="New" style={{ background: '#1a1a1a', color: '#fff' }}>New</option>
                                                                             <option value="Open" style={{ background: '#1a1a1a', color: '#fff' }}>Open</option>
@@ -4761,7 +4768,7 @@ const Admin = ({ currentUser }) => {
                                                                             await refreshData();
                                                                             closeModal();
                                                                         } else {
-                                                                            handleStatusUpdate(selectedItem.id, selectedItem.status, modalType);
+                                                                            handleStatusUpdate(selectedItem.id, selectedItem.status, modalType === 'lead' ? 'lead' : modalType, selectedItem._table);
                                                                         }
                                                                     }}
                                                                     style={{
@@ -4779,7 +4786,7 @@ const Admin = ({ currentUser }) => {
                                                                 </button>
                                                             </div>
 
-                                                            {modalType === 'query' && selectedItem?.message?.includes('[SECURITY]') && (
+                                                            {(modalType === 'query' || modalType === 'lead') && selectedItem?.message?.includes('[SECURITY]') && (
                                                                 <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                                                     {selectedItem.status !== 'New' && (
                                                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
@@ -6133,44 +6140,44 @@ const statusBadge = (status) => {
     let color = '#94a3b8';
     let border = 'rgba(148, 163, 184, 0.2)';
 
-    if (status === 'Pending' || status === 'New' || status === 'Lead Captured' || status === 'Lead Form Submitted' || status === 'Contacted' || status === 'review pending') {
+    if (!status) return { padding: '6px 14px', borderRadius: '8px', fontSize: '0.75rem', background: bg, color, border: `1px solid ${border}`, textTransform: 'uppercase', display: 'inline-block' };
+
+    const s = status.toString().toLowerCase();
+
+    if (['pending', 'new', 'lead captured', 'lead form submitted', 'contacted', 'review pending'].includes(s)) {
         bg = 'rgba(212, 175, 55, 0.1)';
         color = '#D4AF37';
         border = 'rgba(212, 175, 55, 0.2)';
-    }
-    if (status === 'under process' || status === 'Open' || status === 'open') {
+    } else if (['under process', 'open', 'active', 'interview scheduled'].includes(s)) {
         bg = 'rgba(59, 130, 246, 0.1)';
         color = '#3b82f6';
         border = 'rgba(59, 130, 246, 0.2)';
-    }
-    if (status === 'Hold' || status === 'hold') {
+    } else if (['hold', 'on hold'].includes(s)) {
         bg = 'rgba(124, 58, 237, 0.1)';
         color = '#7c3aed';
         border = 'rgba(124, 58, 237, 0.2)';
-    }
-    if (status && typeof status === 'string' && (status.includes('Service Inquiry') || status === 'Reviewed' || status === 'Replied' || status === 'Completed' || status === 'Confirmed' || status === 'hired' || status.includes('interview'))) {
+    } else if (['service inquiry', 'reviewed', 'replied', 'completed', 'confirmed', 'hired', 'scheduled'].includes(s) || s.includes('interview')) {
         bg = 'rgba(16, 185, 129, 0.1)';
         color = '#10b981';
         border = 'rgba(16, 185, 129, 0.2)';
+    } else if (['rejected', 'closed', 'cancelled', 'discarded'].includes(s)) {
+        bg = 'rgba(239, 68, 68, 0.1)';
+        color = '#ef4444';
+        border = 'rgba(239, 68, 68, 0.2)';
     }
-
-    if (status === 'Rejected' || status === 'rejected' || status === 'Closed' || status === 'closed') {
-        bg = 'rgba(225, 29, 72, 0.1)';
-        color = '#f43f5e';
-        border = 'rgba(225, 29, 72, 0.2)';
-    }
-
 
     return {
         padding: '6px 14px',
         borderRadius: '8px',
         fontSize: '0.75rem',
+        fontWeight: '700',
         background: bg,
         color: color,
-        fontWeight: '700',
         border: `1px solid ${border}`,
         textTransform: 'uppercase',
-        letterSpacing: '0.5px'
+        display: 'inline-block',
+        letterSpacing: '0.5px',
+        borderColor: border
     };
 };
 

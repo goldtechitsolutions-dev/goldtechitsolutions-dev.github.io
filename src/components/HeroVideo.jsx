@@ -35,7 +35,7 @@ const videoSlides = [
         id: 2,
         videoSrc: p1Video,
         title: "Innovating for Tomorrow",
-        subtitle: "GoldTech IT Solutions: Where vision meets execution. We build the digital future.",
+        subtitle: "GoldTech IT Solutions Private Limited: Where vision meets execution. We build the digital future.",
         cta: "Discover Our Vision",
         duration: 10000
     },

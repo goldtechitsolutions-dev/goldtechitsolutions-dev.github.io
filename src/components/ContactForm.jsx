@@ -139,7 +139,7 @@ const ContactForm = () => {
         }}>
             <SEO
                 title="Contact Us"
-                description="Get in touch with GoldTech IT Solutions. We are ready to partner with you to transform your digital future."
+                description="Get in touch with GoldTech IT Solutions Private Limited. We are ready to partner with you to transform your digital future."
                 url="contact"
             />
             {/* Dark Premium Overlay */}

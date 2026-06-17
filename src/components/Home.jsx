@@ -18,7 +18,7 @@ const Home = () => {
             <SEO
                 title="GOLDTECH | Elite IT Solutions & AI Consulting"
                 description="GOLDTECH: Transform your business with elite AI automation, scalable Cloud architecture, and custom software development. The Gold Standard of Fintech Infrastructure."
-                keywords="GOLDTECH, GOLD TECH, GoldTech IT Solutions, IT Services Hyderabad, AI Strategy, Cloud Computing, Software Development, Fintech"
+                keywords="GOLDTECH, GOLD TECH, GoldTech IT Solutions Private Limited, IT Services Hyderabad, AI Strategy, Cloud Computing, Software Development, Fintech"
             />
             {/* Visually Hidden H1 for SEO */}
             <h1 style={{ position: 'absolute', width: '1px', height: '1px', padding: '0', margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: '0' }}>

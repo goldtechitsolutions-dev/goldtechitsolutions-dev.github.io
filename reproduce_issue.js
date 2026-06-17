@@ -70,15 +70,36 @@ async function testConnection() {
         console.log(`Successfully fetched ${fetchQ.length} queries from 'queries'.`)
     }
 
-    console.log("\nTesting retrieval (SELECT) from 'leads' table (no gt_ prefix)...")
-    const { data: fetchLRaw, error: fetchLRawError } = await supabase
-        .from('leads')
+    console.log("\nTesting connection to gt_meetings table...")
+    const { data: mData, error: mError } = await supabase
+        .from('gt_meetings')
+        .insert([{
+            name: 'Test Meeting',
+            email: 'meeting@example.com',
+            mobile: '+91 1234567890',
+            topic: 'Test Topic',
+            date: '2026-12-31',
+            time: '10:00 AM',
+            status: 'Scheduled',
+            link: 'https://meet.google.com/test'
+        }])
+        .select()
+
+    if (mError) {
+        console.error("Error inserting into 'gt_meetings' table:", mError)
+    } else {
+        console.log("Successfully inserted into 'gt_meetings' table:", mData)
+    }
+
+    console.log("\nTesting retrieval (SELECT) from gt_meetings table...")
+    const { data: fetchM, error: fetchMError } = await supabase
+        .from('gt_meetings')
         .select('*')
 
-    if (fetchLRawError) {
-        console.log("Table 'leads' does not exist or is not readable:", fetchLRawError.message)
+    if (fetchMError) {
+        console.error("Error selecting from 'gt_meetings' table:", fetchMError)
     } else {
-        console.log(`Successfully fetched ${fetchLRaw.length} leads from 'leads'.`)
+        console.log(`Successfully fetched ${fetchM.length} meetings from 'gt_meetings'.`)
     }
 }
 
