@@ -848,10 +848,15 @@ const Admin = ({ currentUser }) => {
 
     const handleCompanyInfoSubmit = async (e) => {
         e.preventDefault();
-        await AdminService.updateCompanyInfo(companyInfo);
-        alert('Company Profile Settings Updated Successfully');
-        setIsEditingCompanyInfo(false);
-        await refreshData();
+        try {
+            await AdminService.updateCompanyInfo(companyInfo);
+            alert('Company Profile Settings Updated Successfully');
+            setIsEditingCompanyInfo(false);
+            await refreshData();
+        } catch (error) {
+            console.error('Save company info error:', error);
+            alert('Failed to save company profile settings: ' + (error.message || error));
+        }
     };
 
     const handleAddService = () => {

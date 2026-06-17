@@ -1734,6 +1734,7 @@ const AdminService = {
             // Fallback to local only if network fails
             AdminService._saveData('gt_company_info', info);
             await AdminService.logAudit('Company Info Updated Locally (Offline)', 'Admin');
+            throw error;
         }
 
         window.dispatchEvent(new CustomEvent('gt_data_update', { detail: { key: 'gt_company_info' } }));
