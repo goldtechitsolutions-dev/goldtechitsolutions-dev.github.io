@@ -30,10 +30,10 @@ const Footer = () => {
                 <div className="footer-content">
                     <div className="footer-brand footer-column">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
-                            <img src={logo} alt="GoldTech Logo" style={{ width: '40px', height: 'auto' }} />
+                            <img src={logo} alt="GoldTech IT Logo" style={{ width: '40px', height: 'auto' }} />
                             <div className="brand-name">
                                 <span className="brand-gold">GOLD</span>
-                                <span style={{ color: 'var(--color-blue-accent)' }}>TECH</span>
+                                <span style={{ color: 'var(--color-blue-accent)' }}>TECH IT</span>
                             </div>
                         </div>
                         <p>Empowering businesses through innovation and technology excellence.</p>

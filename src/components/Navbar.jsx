@@ -20,12 +20,12 @@ const Navbar = () => {
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                         closeMobileMenu();
                     }}
-                    title="GOLDTECH - Home"
+                    title="GOLDTECH IT - Home"
                 >
-                    <img src={logo} alt="GOLDTECH Logo - Leading IT Solutions & Software Development" className="logo-img" />
+                    <img src={logo} alt="GOLDTECH IT Logo - Leading IT Solutions & Software Development" className="logo-img" />
                     <div className="brand-name">
                         <span className="brand-gold" style={{ letterSpacing: '2px' }}>GOLD</span>
-                        <span style={{ color: 'var(--color-blue-accent)', letterSpacing: '2px' }}>TECH</span>
+                        <span style={{ color: 'var(--color-blue-accent)', letterSpacing: '2px' }}>TECH IT</span>
                     </div>
                 </Link>
 
