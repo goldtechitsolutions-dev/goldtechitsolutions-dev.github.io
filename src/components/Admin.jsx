@@ -5624,7 +5624,7 @@ const Admin = ({ currentUser }) => {
 
                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                                     {(companyInfo.heroSlides || []).filter(Boolean).map((slide, idx) => (
-                                                        <div key={idx} style={{ background: 'rgba(0,0,0,0.15)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                                        <div key={slide.id !== undefined ? slide.id : idx} style={{ background: 'rgba(0,0,0,0.15)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '15px' }}>
                                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                                 <h5 style={{ color: '#D4AF37', margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>Hero Slide #{idx + 1}</h5>
                                                                 <button
@@ -5888,7 +5888,7 @@ const Admin = ({ currentUser }) => {
                                             <h4 style={{ color: '#D4AF37', fontSize: '1rem', fontWeight: '800', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px' }}>Hero Slides ({ (companyInfo.heroSlides || []).filter(Boolean).length })</h4>
                                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '15px' }}>
                                                 {(companyInfo.heroSlides || []).filter(Boolean).map((slide, idx) => (
-                                                    <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '15px' }}>
+                                                    <div key={slide.id !== undefined ? slide.id : idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '15px' }}>
                                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                                                             <h5 style={{ margin: 0, color: '#fff', fontSize: '0.95rem', fontWeight: '800' }}>{slide.title || 'Untitled Slide'}</h5>
                                                             <span style={{ fontSize: '0.75rem', color: '#D4AF37', background: 'rgba(212, 175, 55, 0.1)', padding: '2px 8px', borderRadius: '4px', fontWeight: '700' }}>

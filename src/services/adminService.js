@@ -637,9 +637,9 @@ const safeMergeCompanyInfo = (parsedInfo) => {
         email: parsedInfo.email !== undefined && parsedInfo.email !== null ? parsedInfo.email : initialCompanyInfo.email,
         phone: parsedInfo.phone !== undefined && parsedInfo.phone !== null ? parsedInfo.phone : initialCompanyInfo.phone,
         footerOpacity: parsedInfo.footerOpacity !== undefined && parsedInfo.footerOpacity !== null ? parsedInfo.footerOpacity : initialCompanyInfo.footerOpacity,
-        services: (parsedInfo.services && parsedInfo.services.length > 0 ? parsedInfo.services : defaultServices).filter(Boolean),
-        industries: (parsedInfo.industries && parsedInfo.industries.length > 0 ? parsedInfo.industries : defaultIndustries).filter(Boolean),
-        heroSlides: (parsedInfo.heroSlides && parsedInfo.heroSlides.length > 0 ? parsedInfo.heroSlides : defaultHeroSlides).filter(Boolean)
+        services: (Array.isArray(parsedInfo.services) && parsedInfo.services.length > 0 ? parsedInfo.services : defaultServices).filter(Boolean),
+        industries: (Array.isArray(parsedInfo.industries) && parsedInfo.industries.length > 0 ? parsedInfo.industries : defaultIndustries).filter(Boolean),
+        heroSlides: (Array.isArray(parsedInfo.heroSlides) && parsedInfo.heroSlides.length > 0 ? parsedInfo.heroSlides : defaultHeroSlides).filter(Boolean)
     };
 };
 
