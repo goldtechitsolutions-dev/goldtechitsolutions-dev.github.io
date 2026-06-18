@@ -14,7 +14,7 @@ async function run() {
             content: JSON.stringify({
                 address: '3141, VIDYUTH NAGAR, NEW MIG,PH-2 BHEL, HYDERABAD - 502032',
                 email: 'contact@goldtech.in',
-                phone: '+91 7332209653',
+                phone: '+91 7331109653',
                 footerOpacity: 1
             }),
             author: 'System',

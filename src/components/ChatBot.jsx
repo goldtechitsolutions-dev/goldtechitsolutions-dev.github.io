@@ -242,13 +242,13 @@ const ChatBot = () => {
             { keys: ['culture', 'life', 'environment'], answer: "At GoldTech, we value innovation, learning, and wellbeing. We have a 'no-ego' policy, annual learning stipends, and regular team retreats." },
 
             // Contact - Email Priority
-            { keys: ['contact mail', 'mail', 'email', 'gmail', 'mail id', 'email id'], answer: "Here is our email:\n\ncontact@goldtech.in\n📞 +91 7332209653" },
+            { keys: ['contact mail', 'mail', 'email', 'gmail', 'mail id', 'email id'], answer: "Here is our email:\n\ncontact@goldtech.in\n📞 +91 7331109653" },
 
             // Contact - Phone Priority
-            { keys: ['contact no', 'contact number', 'phone', 'call', 'give ur no', 'ur no', 'your no', 'give no', 'mobile no', 'number'], answer: "Here is our number:\n\n📞 +91 7332209653\ncontact@goldtech.in" },
+            { keys: ['contact no', 'contact number', 'phone', 'call', 'give ur no', 'ur no', 'your no', 'give no', 'mobile no', 'number'], answer: "Here is our number:\n\n📞 +91 7331109653\ncontact@goldtech.in" },
 
             // Contact - General
-            { keys: ['contact', 'support', 'reach out'], answer: "Here are our contact details:\n\ncontact@goldtech.in\n📞 +91 7332209653" },
+            { keys: ['contact', 'support', 'reach out'], answer: "Here are our contact details:\n\ncontact@goldtech.in\n📞 +91 7331109653" },
 
             { keys: ['hiring', 'job', 'career', 'vacancy', 'resume', 'cv', 'work for you', 'work for u', 'opening'], answer: "We are always looking for talented individuals! Please check our Careers page or email your resume to careers@goldtech.com." },
             { keys: ['price', 'cost', 'quote', 'rates', 'pricing', 'how much', 'charges'], answer: "Our pricing is customized based on the project scope and requirements. I can connect you with our sales team for a detailed quote. Would you like that?" },
@@ -833,7 +833,7 @@ const ChatBot = () => {
                                                             {msg.text.split(/(\s+)/).map((part, index) => {
                                                                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                                                                 const phoneRegex = /^(\+?\d{10,}|\d{3,}-\d{3,}-\d{4,})$/; // Simple check for likely phone numbers
-                                                                const isPhone = /\d{10}/.test(part) || part.includes('7332209653');
+                                                                const isPhone = /\d{10}/.test(part) || part.includes('7331109653');
 
                                                                 if (emailRegex.test(part) || isPhone) {
                                                                     return <span key={index} style={{

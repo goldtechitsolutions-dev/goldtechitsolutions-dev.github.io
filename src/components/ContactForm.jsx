@@ -203,7 +203,7 @@ const ContactForm = () => {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
                             {[
                                 { icon: Mail, label: 'Email Us', text: companyInfo.email || 'contact@goldtech.in' },
-                                { icon: Phone, label: 'Call Us', text: companyInfo.phone || '+91 7332209653' },
+                                { icon: Phone, label: 'Call Us', text: companyInfo.phone || '+91 7331109653' },
                                 { icon: Globe, label: 'Global Presence', text: 'Serving Clients Worldwide' }
                             ].map((item, idx) => (
                                 <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
