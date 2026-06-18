@@ -1703,12 +1703,16 @@ const AdminService = {
             if (existingRecords && existingRecords.length > 0) {
                 const primaryId = existingRecords[0].id;
                 // Update the oldest/primary record
-                const { error: updateError } = await supabase
+                const { data: updateData, error: updateError } = await supabase
                     .from('blogs')
                     .update(payload)
-                    .eq('id', primaryId);
+                    .eq('id', primaryId)
+                    .select();
 
                 if (updateError) throw updateError;
+                if (!updateData || updateData.length === 0) {
+                    throw new Error("No database rows were updated. RLS policy or database connection issue might be blocking this action.");
+                }
 
                 // Clean up any other duplicates that might exist
                 if (existingRecords.length > 1) {
@@ -1719,10 +1723,14 @@ const AdminService = {
                         .in('id', extraIds);
                 }
             } else {
-                const { error: insertError } = await supabase
+                const { data: insertData, error: insertError } = await supabase
                     .from('blogs')
-                    .insert([payload]);
+                    .insert([payload])
+                    .select();
                 if (insertError) throw insertError;
+                if (!insertData || insertData.length === 0) {
+                    throw new Error("No database rows were inserted. RLS policy or database connection issue might be blocking this action.");
+                }
             }
 
             // Sync successfully, also update local cache
