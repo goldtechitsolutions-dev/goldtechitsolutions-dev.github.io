@@ -10,14 +10,17 @@
   <link rel="manifest" href="./site.webmanifest" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script>
-    if (window.location.hash === '#support') {
-      window.location.hash = '#/support';
-    }
-    window.addEventListener('hashchange', function() {
-      if (window.location.hash === '#support') {
-        window.location.hash = '#/support';
-      }
-    });
+    (function() {
+      var allowed = ['admin', 'hr', 'employee', 'manager', 'finance', 'sales', 'project-management', 'tasks', 'research', 'support', 'client'];
+      var redirect = function() {
+        var hash = (window.location.hash || '').slice(1).toLowerCase();
+        if (allowed.indexOf(hash) !== -1) {
+          window.location.hash = '#/' + hash;
+        }
+      };
+      redirect();
+      window.addEventListener('hashchange', redirect);
+    })();
   </script>
   <!-- Cache Control to prevent browser from caching outdated index.html -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -57,7 +60,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
     rel="stylesheet">
-  <script type="module" crossorigin src="./assets/index-2f1aDRFn.js"></script>
+  <script type="module" crossorigin src="./assets/index-Dvpl7SV8.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-Cfd9lnTw.css">
 </head>
 
